@@ -10,12 +10,13 @@
 
     local _G = _G
     local format, gsub, find = string.format, string.gsub, string.find
-    local abs = math.abs
+    local abs, max, min = math.abs, math.max, math.min
     local ipairs, select, tostring = ipairs, select, tostring
     local tinsert, table_concat = table.insert, table.concat
     local NUM_CHAT_WINDOWS = NUM_CHAT_WINDOWS or 10
     local CHAT_FRAME_LIMIT = 10
     local CHAT_EDITBOX_PARTS = {"Left", "Mid", "Right"}
+    local L = addon.L or {}
 
     -- Module state tracking
     local ChatModsModule = {
@@ -52,6 +53,109 @@
     local ALPHA_EPSILON = 0.01
     local HOVER_UPDATE_THROTTLE = 0.1
     local HOVER_IDLE_TICKS_TO_SLEEP = 3
+    local QUICK_CHAT_BUTTON_WIDTH = 34
+    local QUICK_CHAT_BUTTON_HEIGHT = 20
+    local QUICK_CHAT_BUTTON_GAP = 4
+    local QUICK_CHAT_BAR_TOP_OFFSET = -8
+    local QUICK_CHAT_BAR_TO_EDITBOX_GAP = 6
+    local QUICK_CHAT_EDITBOX_TOP_OFFSET = QUICK_CHAT_BAR_TOP_OFFSET - QUICK_CHAT_BUTTON_HEIGHT - QUICK_CHAT_BAR_TO_EDITBOX_GAP
+
+    local QUICK_CHAT_BUTTON_BACKDROP = {
+        bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
+        edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
+        tile = false, edgeSize = 1,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 },
+    }
+    local CreateQuickChatButtonsForFrame
+
+    local QUICK_CHAT_BUTTONS = {
+        {
+            key = "custom1",
+            labelKey = "Quick Chat Custom 1",
+            command = "/1 ",
+            color = { 0.34, 0.88, 0.98 },
+            isAvailable = function()
+                local channelId = GetChannelName and GetChannelName(1)
+                return type(channelId) == "number" and channelId > 0
+            end,
+        },
+        {
+            key = "say",
+            labelKey = "Quick Chat Say",
+            command = "/s ",
+            color = { 0.95, 0.87, 0.28 },
+            isAvailable = function()
+                return true
+            end,
+        },
+        {
+            key = "yell",
+            labelKey = "Quick Chat Yell",
+            command = "/y ",
+            color = { 1.00, 0.45, 0.18 },
+            isAvailable = function()
+                return true
+            end,
+        },
+        {
+            key = "reply",
+            labelKey = "Quick Chat Reply",
+            command = "/r ",
+            color = { 0.95, 0.52, 0.82 },
+            isAvailable = function()
+                local target = ChatEdit_GetLastTellTarget and ChatEdit_GetLastTellTarget()
+                return target ~= nil and target ~= ""
+            end,
+        },
+        {
+            key = "guild",
+            labelKey = "Quick Chat Guild",
+            command = "/g ",
+            color = { 0.25, 0.95, 0.40 },
+            isAvailable = function()
+                return GetGuildInfo and GetGuildInfo("player") ~= nil
+            end,
+        },
+        {
+            key = "party",
+            labelKey = "Quick Chat Party",
+            command = "/p ",
+            color = { 0.55, 0.72, 1.00 },
+            isAvailable = function()
+                return (GetNumPartyMembers and GetNumPartyMembers() or 0) > 0
+                    and (GetNumRaidMembers and GetNumRaidMembers() or 0) == 0
+            end,
+        },
+        {
+            key = "raid",
+            labelKey = "Quick Chat Raid",
+            command = "/raid ",
+            color = { 1.00, 0.55, 0.32 },
+            isAvailable = function()
+                return (GetNumRaidMembers and GetNumRaidMembers() or 0) > 0
+            end,
+        },
+        {
+            key = "raidwarning",
+            labelKey = "Quick Chat Raid Warning",
+            command = "/rw ",
+            color = { 1.00, 0.18, 0.18 },
+            isAvailable = function()
+                return (GetNumRaidMembers and GetNumRaidMembers() or 0) > 0
+                    and ((IsRaidLeader and IsRaidLeader()) or (IsRaidOfficer and IsRaidOfficer()))
+            end,
+        },
+        {
+            key = "battleground",
+            labelKey = "Quick Chat Battleground",
+            command = "/bg ",
+            color = { 0.74, 0.48, 1.00 },
+            isAvailable = function()
+                local _, instanceType = IsInInstance and IsInInstance()
+                return instanceType == "pvp"
+            end,
+        },
+    }
 
     local function IsAlphaChanged(current, target)
         return abs((current or 0) - (target or 0)) > ALPHA_EPSILON
@@ -89,6 +193,76 @@
             button:SetAlpha(alpha)
         end
         SetMouseIfChanged(button, alpha >= 0.95)
+    end
+
+    local function IsQuickChatButtonAvailable(buttonInfo)
+        return true
+    end
+
+    local function UpdateQuickChatButtonVisual(button)
+        if not button then return end
+
+        local enabled = button._dragonUIQuickAvailable
+        local hovered = enabled and button._dragonUIQuickHovered
+        local text = button:GetFontString()
+        local color = (button._dragonUIQuickInfo and button._dragonUIQuickInfo.color) or { 0.93, 0.82, 0.38 }
+        local r, g, b = color[1], color[2], color[3]
+
+        if enabled then
+            if hovered then
+                button:SetBackdropColor(min(r * 0.18, 0.25), min(g * 0.18, 0.25), min(b * 0.18, 0.25), 0.96)
+                button:SetBackdropBorderColor(min(r * 1.08, 1), min(g * 1.08, 1), min(b * 1.08, 1), 1)
+                if text then
+                    text:SetTextColor(min(r * 1.10, 1), min(g * 1.10, 1), min(b * 1.10, 1))
+                end
+            else
+                button:SetBackdropColor(min(r * 0.10, 0.16), min(g * 0.10, 0.16), min(b * 0.10, 0.16), 0.90)
+                button:SetBackdropBorderColor(min(r * 0.55, 1), min(g * 0.55, 1), min(b * 0.55, 1), 0.95)
+                if text then
+                    text:SetTextColor(r, g, b)
+                end
+            end
+        else
+            button:SetBackdropColor(0.02, 0.02, 0.03, 0.72)
+            button:SetBackdropBorderColor(0.12, 0.12, 0.15, 0.72)
+            if text then
+                text:SetTextColor(0.45, 0.45, 0.48)
+            end
+        end
+    end
+
+    local function UpdateQuickChatButtonsAvailability(entry)
+        if not entry or not entry.quickButtons then return end
+
+        for _, button in ipairs(entry.quickButtons) do
+            local available = IsQuickChatButtonAvailable(button._dragonUIQuickInfo)
+            if button._dragonUIQuickAvailable ~= available then
+                button._dragonUIQuickAvailable = available
+                UpdateQuickChatButtonVisual(button)
+            else
+                UpdateQuickChatButtonVisual(button)
+            end
+        end
+    end
+
+    local function SetQuickChatButtonsAlpha(entry, alpha)
+        if not entry or not entry.quickBar then return end
+
+        if not entry.quickBar:IsShown() then
+            entry.quickBar:Show()
+        end
+
+        if IsAlphaChanged(entry.quickBar:GetAlpha(), alpha) then
+            entry.quickBar:SetAlpha(alpha)
+        end
+
+        SetMouseIfChanged(entry.quickBar, alpha >= 0.95)
+
+        if entry.quickButtons then
+            for _, button in ipairs(entry.quickButtons) do
+                SetMouseIfChanged(button, alpha >= 0.95 and button._dragonUIQuickAvailable)
+            end
+        end
     end
 
 local function SetPrimaryChatButtonsAlpha(alpha)
@@ -131,6 +305,9 @@ end
             SetButtonVisible((entry and entry.menuBtn) or _G.ChatFrameMenuButton, visible)
             SetButtonVisible((entry and entry.friendsBtn) or _G.FriendsMicroButton, visible)
         end
+        if entry then
+            SetQuickChatButtonsAlpha(entry, visible and 1 or 0)
+        end
     end
 
 local function SetChatHoverButtonsAlpha(i, alpha, entry, showBackground, fadeBackgroundWithButtons)
@@ -153,6 +330,9 @@ local function SetChatHoverButtonsAlpha(i, alpha, entry, showBackground, fadeBac
     SetButtonAlpha(upBtn, alpha)
     SetButtonAlpha(downBtn, alpha)
     SetButtonAlpha(bottomBtn, alpha)
+    if entry then
+        SetQuickChatButtonsAlpha(entry, alpha)
+    end
 end
 
 local function ApplyTabAlphaGlobals(config)
@@ -361,9 +541,12 @@ local function EnsureChatButtonsHoverUpdater()
                 entry.lastEditboxAlpha = nil
             end
 
+            UpdateQuickChatButtonsAvailability(entry)
+
             local hovered = (entry.tab and entry.tab:IsMouseOver())
                 or (entry.cf and entry.cf:IsMouseOver())
                 or (entry.bf and entry.bf:IsMouseOver())
+                or (entry.quickBar and entry.quickBar:IsMouseOver())
                 or (entry.eb and (entry.eb:IsMouseOver() or entry.eb:HasFocus()))
 
             local targetTabAlpha = hovered and 1 or ((entry.tab and entry.tab.noMouseAlpha) or 0)
@@ -459,7 +642,10 @@ local function ApplyChatFrameTweaks()
                     lastTabAlpha = nil,
                     lastBgAlpha = nil,
                     lastEditboxAlpha = nil,
+                    quickBar = nil,
+                    quickButtons = nil,
                 }
+                CreateQuickChatButtonsForFrame(entry)
                 SetChatHoverButtonsVisible(i, false, entry)
 
                 tinsert(ChatModsModule.frames.chatHoverEntries, entry)
@@ -618,6 +804,108 @@ local function ApplyEditboxStyle()
     RefreshChatFadeState()
 end
 
+local function OpenQuickChatChannel(buttonInfo, chatFrame)
+    if not buttonInfo or not chatFrame or not ChatFrame_OpenChat then return end
+
+    local editBox = chatFrame.editBox or _G[chatFrame:GetName() .. "EditBox"]
+    if not editBox then return end
+
+    local command = buttonInfo.command or ""
+    ChatFrame_OpenChat(command, chatFrame)
+
+    if editBox.SetCursorPosition then
+        editBox:SetCursorPosition(command:len())
+    end
+    if editBox.HighlightText then
+        editBox:HighlightText(0, 0)
+    end
+
+    OnChatHoverInteraction()
+end
+
+CreateQuickChatButtonsForFrame = function(entry)
+    if not entry or entry.index ~= 1 then
+        return
+    end
+
+    local cf = entry.cf
+    if not cf then return end
+
+    if cf._dragonUIQuickBar and cf._dragonUIQuickButtons then
+        cf._dragonUIQuickBar:ClearAllPoints()
+        cf._dragonUIQuickBar:SetPoint("TOPLEFT", cf, "BOTTOMLEFT", -(CHATBG_LEFT_PAD - 0), QUICK_CHAT_BAR_TOP_OFFSET)
+        cf._dragonUIQuickBar:SetPoint("TOPRIGHT", cf, "BOTTOMRIGHT", 2, QUICK_CHAT_BAR_TOP_OFFSET)
+        entry.quickBar = cf._dragonUIQuickBar
+        entry.quickButtons = cf._dragonUIQuickButtons
+        UpdateQuickChatButtonsAvailability(entry)
+        return
+    end
+
+    local bar = CreateFrame("Frame", nil, cf)
+    bar:SetHeight(QUICK_CHAT_BUTTON_HEIGHT)
+    bar:SetWidth((QUICK_CHAT_BUTTON_WIDTH * #QUICK_CHAT_BUTTONS) + (QUICK_CHAT_BUTTON_GAP * (#QUICK_CHAT_BUTTONS - 1)))
+    bar:SetFrameStrata(cf:GetFrameStrata())
+    bar:SetFrameLevel(max(cf:GetFrameLevel() + 2, 1))
+    bar:SetPoint("TOPLEFT", cf, "BOTTOMLEFT", -(CHATBG_LEFT_PAD - 0), QUICK_CHAT_BAR_TOP_OFFSET)
+    bar:SetPoint("TOPRIGHT", cf, "BOTTOMRIGHT", 2, QUICK_CHAT_BAR_TOP_OFFSET)
+    entry.quickBar = bar
+    entry.quickButtons = {}
+    cf._dragonUIQuickBar = bar
+    cf._dragonUIQuickButtons = entry.quickButtons
+
+    for index, buttonInfo in ipairs(QUICK_CHAT_BUTTONS) do
+        local button = CreateFrame("Button", nil, bar)
+        button:SetHeight(QUICK_CHAT_BUTTON_HEIGHT)
+        button:SetWidth(QUICK_CHAT_BUTTON_WIDTH)
+        button:SetBackdrop(QUICK_CHAT_BUTTON_BACKDROP)
+        button:SetBackdropBorderColor(0.28, 0.28, 0.35, 0.92)
+        button:SetBackdropColor(0.05, 0.05, 0.08, 0.90)
+        button:SetNormalFontObject("GameFontNormalSmall")
+        button:SetHighlightFontObject("GameFontNormalSmall")
+        button._dragonUIQuickInfo = buttonInfo
+        button._dragonUIQuickAvailable = true
+        button._dragonUIQuickHovered = false
+
+        local text = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        text:SetPoint("CENTER", button, "CENTER", 0, 0)
+        text:SetText((L and L[buttonInfo.labelKey]) or buttonInfo.labelKey)
+        button:SetFontString(text)
+
+        if index == 1 then
+            button:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+        else
+            button:SetPoint("LEFT", entry.quickButtons[index - 1], "RIGHT", QUICK_CHAT_BUTTON_GAP, 0)
+        end
+
+        button:SetScript("OnEnter", function(self)
+            self._dragonUIQuickHovered = true
+            UpdateQuickChatButtonVisual(self)
+            OnChatHoverInteraction()
+        end)
+        button:SetScript("OnLeave", function(self)
+            self._dragonUIQuickHovered = false
+            UpdateQuickChatButtonVisual(self)
+            OnChatHoverInteraction()
+        end)
+        button:SetScript("OnClick", function(self)
+            if not self._dragonUIQuickAvailable then
+                return
+            end
+            OpenQuickChatChannel(self._dragonUIQuickInfo, cf)
+        end)
+
+        UpdateQuickChatButtonVisual(button)
+        tinsert(entry.quickButtons, button)
+    end
+
+    AttachChatHoverRefreshHooks(bar)
+    for _, button in ipairs(entry.quickButtons) do
+        AttachChatHoverRefreshHooks(button)
+    end
+
+    UpdateQuickChatButtonsAvailability(entry)
+end
+
 -- ============================================================================
 -- EDITBOX POSITIONING
 -- ============================================================================
@@ -647,8 +935,8 @@ local function ApplyEditBoxPosition()
                 eb:SetPoint("BOTTOMLEFT", cf, "TOPLEFT", 2 - (CHATBG_LEFT_PAD - 0), 20)
                 eb:SetPoint("BOTTOMRIGHT", cf, "TOPRIGHT", -2, 20)
             else -- bottom: place just below the chat frame with no gap
-                eb:SetPoint("TOPLEFT", cf, "BOTTOMLEFT", -(CHATBG_LEFT_PAD - 0), EDITBOX_Y_OFFSET)
-                eb:SetPoint("TOPRIGHT", cf, "BOTTOMRIGHT", 2, EDITBOX_Y_OFFSET)
+                eb:SetPoint("TOPLEFT", cf, "BOTTOMLEFT", -(CHATBG_LEFT_PAD - 0), QUICK_CHAT_EDITBOX_TOP_OFFSET)
+                eb:SetPoint("TOPRIGHT", cf, "BOTTOMRIGHT", 2, QUICK_CHAT_EDITBOX_TOP_OFFSET)
             end
         end
     end
@@ -706,6 +994,19 @@ local function OnChatEditSendText()
     for i = 1, CHAT_FRAME_LIMIT do
         local box = _G["ChatFrame" .. i .. "EditBox"]
         if box then box:EnableMouse(false) end
+    end
+end
+
+local function RefreshQuickChatButtons()
+    local entries = ChatModsModule.frames.chatHoverEntries
+    if not entries then return end
+
+    for _, entry in ipairs(entries) do
+        UpdateQuickChatButtonsAvailability(entry)
+    end
+
+    if ChatModsModule.applied then
+        StartChatButtonsHoverUpdater(true)
     end
 end
 
@@ -1147,6 +1448,14 @@ local function RestoreChatModsSystem()
         if eb then eb:SetBackdrop(nil) end
     end
 
+    if ChatModsModule.frames.chatHoverEntries then
+        for _, entry in ipairs(ChatModsModule.frames.chatHoverEntries) do
+            if entry.quickBar then
+                entry.quickBar:Hide()
+            end
+        end
+    end
+
     -- Restore original chat font heights
     if ChatModsModule.originalStates.CHAT_FONT_HEIGHTS then
         CHAT_FONT_HEIGHTS = ChatModsModule.originalStates.CHAT_FONT_HEIGHTS
@@ -1255,6 +1564,11 @@ end
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
+eventFrame:RegisterEvent("RAID_ROSTER_UPDATE")
+eventFrame:RegisterEvent("PARTY_CONVERTED_TO_RAID")
+eventFrame:RegisterEvent("GUILD_ROSTER_UPDATE")
+eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
 eventFrame:SetScript("OnEvent", function(self, event, arg1)
     if event == "ADDON_LOADED" and arg1 == "DragonUI" then
@@ -1277,7 +1591,14 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
         addon:After(1, function()
             if not ChatModsModule.applied then return end
             RefreshChatFadeState()
+            RefreshQuickChatButtons()
         end)
+    elseif event == "PARTY_MEMBERS_CHANGED"
+        or event == "RAID_ROSTER_UPDATE"
+        or event == "PARTY_CONVERTED_TO_RAID"
+        or event == "GUILD_ROSTER_UPDATE"
+        or event == "ZONE_CHANGED_NEW_AREA" then
+        RefreshQuickChatButtons()
     end
 end)
 

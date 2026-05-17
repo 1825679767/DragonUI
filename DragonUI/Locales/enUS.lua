@@ -265,6 +265,15 @@ L["Recommended"] = true
 
 -- Bag Sort
 L["Sort Bags"] = true
+L["Quick Chat Custom 1"] = "1"
+L["Quick Chat Say"] = "Say"
+L["Quick Chat Yell"] = "Yell"
+L["Quick Chat Reply"] = "Reply"
+L["Quick Chat Guild"] = "Guild"
+L["Quick Chat Party"] = "Party"
+L["Quick Chat Raid"] = "Raid"
+L["Quick Chat Raid Warning"] = "Warn"
+L["Quick Chat Battleground"] = "BG"
 L["Sort Bank"] = true
 L["Sort Items"] = true
 L["Click to sort items by type, rarity, and name."] = true
