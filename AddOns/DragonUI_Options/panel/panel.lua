@@ -540,6 +540,40 @@ local function BuildPluginManagementPlaceholder(parent)
             end,
         },
         {
+            key = "grid2",
+            title = "Grid2",
+            subtitle = LO["Modular party and raid unit frames for healing and group visibility."],
+            category = "raidframes",
+            addons = { "Grid2", "Grid2Options", "Grid2StatusRaidDebuffs", "Grid2StatusRaidDebuffsOptions" },
+            getLoaded = function()
+                return _G.Grid2 ~= nil
+            end,
+            openConfig = function()
+                if _G.Grid2 and _G.Grid2.OnChatCommand then
+                    _G.Grid2:OnChatCommand("")
+                    return true
+                end
+                return false
+            end,
+        },
+        {
+            key = "selljunk",
+            title = "SellJunk",
+            subtitle = LO["Automatically sells junk items and manages keep/sell exception lists."],
+            category = "utilities",
+            addons = { "SellJunk" },
+            getLoaded = function()
+                return _G.SellJunk ~= nil
+            end,
+            openConfig = function()
+                if _G.SellJunk and _G.SellJunk.HandleSlashCommands then
+                    _G.SellJunk:HandleSlashCommands("")
+                    return true
+                end
+                return false
+            end,
+        },
+        {
             key = "skada",
             title = "Skada",
             subtitle = LO["Damage, healing, threat, and combat statistics."],
@@ -562,6 +596,8 @@ local function BuildPluginManagementPlaceholder(parent)
         { key = "all", text = LO["All"] },
         { key = "encounter", text = LO["Encounter Tools"] },
         { key = "interface", text = LO["Interface Enhancements"] },
+        { key = "raidframes", text = LO["Raid Frames"] },
+        { key = "utilities", text = LO["Utilities"] },
         { key = "stats", text = LO["Combat Statistics"] },
     }
 
