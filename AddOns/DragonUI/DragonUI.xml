@@ -8,6 +8,7 @@
 	<!-- Configuration and database defaults -->
 	<Script file="config.lua"/>
 	<Script file="database.lua"/>
+	<Script file="database_userdefaults.lua"/>
 	
 	<!-- Core API and utilities (must load before core.lua) -->
 	<Include file="core\core.xml"/>

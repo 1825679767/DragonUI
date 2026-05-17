@@ -30,6 +30,7 @@ Panel.mainSectionButtons = {}
 Panel.currentTab = nil
 Panel.currentMainSection = "ui"
 Panel.scrollWidget = nil  -- current AceGUI ScrollFrame inside content
+Panel.defaultTab = "general"
 
 -- ============================================================================
 -- THEME
@@ -92,16 +93,38 @@ local function SetSafeFont(fs, size, flags)
 end
 
 local function ReleaseScrollWidget()
-    if Panel.customContentFrame then
-        Panel.customContentFrame:Hide()
-        Panel.customContentFrame:SetParent(nil)
-        Panel.customContentFrame = nil
+    local customFrame = Panel.customContentFrame
+    local scrollWidget = Panel.scrollWidget
+    local scrollFrame = scrollWidget and scrollWidget.frame
+
+    Panel.customContentFrame = nil
+    Panel.scrollWidget = nil
+
+    if customFrame then
+        customFrame:Hide()
+        customFrame:ClearAllPoints()
+        customFrame:SetParent(nil)
     end
 
-    if Panel.scrollWidget then
-        Panel.scrollWidget:ReleaseChildren()
-        AceGUI:Release(Panel.scrollWidget)
-        Panel.scrollWidget = nil
+    if scrollWidget then
+        scrollWidget:ReleaseChildren()
+        AceGUI:Release(scrollWidget)
+    end
+
+    if scrollFrame then
+        scrollFrame:Hide()
+        scrollFrame:ClearAllPoints()
+        scrollFrame:SetParent(nil)
+    end
+
+    if Panel.frame and Panel.frame.content then
+        local content = Panel.frame.content
+        local children = { content:GetChildren() }
+        for _, child in ipairs(children) do
+            child:Hide()
+            child:ClearAllPoints()
+            child:SetParent(nil)
+        end
     end
 end
 
@@ -1230,19 +1253,31 @@ end
 
 function Panel:SelectMainSection(sectionKey, selectTab)
     local targetSection = (sectionKey == "plugins") and "plugins" or "ui"
+    local previousSection = self.currentMainSection
+
+    if previousSection ~= targetSection then
+        ReleaseScrollWidget()
+    end
+
     self.currentMainSection = targetSection
     UpdateMainSectionVisuals()
     UpdateSectionLayout()
 
     if targetSection == "plugins" then
-        ReleaseScrollWidget()
         BuildPluginManagementPlaceholder(self.frame.content)
         return
     end
 
     local targetTab = selectTab
     if not targetTab or not self.tabs[targetTab] then
-        targetTab = self.currentTab or (self.tabOrder[1] or nil)
+        if previousSection == "plugins" and self.defaultTab and self.tabs[self.defaultTab] then
+            targetTab = self.defaultTab
+        else
+            targetTab = self.currentTab or self.defaultTab or (self.tabOrder[1] or nil)
+            if targetTab and not self.tabs[targetTab] then
+                targetTab = self.tabOrder[1] or nil
+            end
+        end
     end
 
     if targetTab then
