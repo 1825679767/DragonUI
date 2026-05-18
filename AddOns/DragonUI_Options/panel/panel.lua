@@ -857,6 +857,47 @@ local function BuildPluginManagementPlaceholder(parent)
             end,
         },
         {
+            key = "questie",
+            title = "Questie",
+            subtitle = LO["Quest helper with map notes, minimap objectives, tooltips, search, journey log, and its own quest tracker."],
+            category = "reference",
+            note = LO["Questie uses DragonUI's quest tracker styling in this integration. Its own tracker is kept disabled while map notes and other quest features remain available."],
+            addons = { "Questie-335" },
+            getLoaded = function()
+                return _G.Questie ~= nil or IsAddOnLoaded("Questie-335")
+            end,
+            openConfig = function()
+                if _G.QuestieConfigFrame then
+                    if not _G.QuestieConfigFrame:IsShown() then
+                        _G.QuestieConfigFrame:Show()
+                    end
+                    if _G.QuestieConfigFrame.frame and _G.QuestieConfigFrame.frame.Raise then
+                        _G.QuestieConfigFrame.frame:Raise()
+                    end
+                    return _G.QuestieConfigFrame:IsShown()
+                end
+
+                local questieOptions
+
+                if _G.QuestieLoader and type(_G.QuestieLoader.ImportModule) == "function" then
+                    local ok, module = pcall(_G.QuestieLoader.ImportModule, _G.QuestieLoader, "QuestieOptions")
+                    if ok and module and type(module.OpenConfigWindow) == "function" then
+                        questieOptions = module
+                    end
+                end
+
+                if questieOptions then
+                    questieOptions:OpenConfigWindow()
+                    if _G.QuestieConfigFrame and _G.QuestieConfigFrame.frame and _G.QuestieConfigFrame.frame.Raise then
+                        _G.QuestieConfigFrame.frame:Raise()
+                    end
+                    return _G.QuestieConfigFrame and _G.QuestieConfigFrame:IsShown()
+                end
+
+                return false
+            end,
+        },
+        {
             key = "atlasloot",
             title = "AtlasLoot",
             subtitle = LO["Loot, crafting, faction, and event reward browser with bundled expansion data modules."],

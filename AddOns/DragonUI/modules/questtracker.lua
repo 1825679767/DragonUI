@@ -21,6 +21,38 @@ end
 
 QuestTrackerModule.questTrackerFrame = nil
 
+local function IsQuestieTrackerActive()
+    local questieLoaded = _G.Questie ~= nil
+
+    if not questieLoaded and type(IsAddOnLoaded) == "function" then
+        questieLoaded = IsAddOnLoaded("Questie-335") or IsAddOnLoaded("Questie")
+    end
+
+    if not questieLoaded then
+        return false
+    end
+
+    local questie = _G.Questie
+    local profile = questie and questie.db and questie.db.profile
+    if not profile then
+        return false
+    end
+
+    return profile.enabled ~= false and profile.trackerEnabled ~= false and not profile.showBlizzardQuestTimer
+end
+
+local function EnsureQuestieCompatibility()
+    if not IsQuestieTrackerActive() then
+        return false
+    end
+
+    if QuestTrackerModule.applied then
+        QuestTrackerModule:RestoreSystem()
+    end
+
+    return true
+end
+
 -- =============================================================================
 -- MODULE ENABLED CHECK
 -- =============================================================================
@@ -210,6 +242,7 @@ local lastUpdateTime = 0
 
 local function ForceUpdateQuestTracker()
     if updateInProgress then return end
+    if EnsureQuestieCompatibility() then return end
     
     local now = GetTime()
     if now - lastUpdateTime < 0.05 then return end -- Faster updates (20/sec max)
@@ -254,6 +287,13 @@ end
 -- =============================================================================
 function addon.RefreshQuestTracker()
     if not IsModuleEnabled() then return end
+    if EnsureQuestieCompatibility() then return end
+    if not QuestTrackerModule.initialized then
+        QuestTrackerModule:Initialize()
+    elseif not QuestTrackerModule.applied then
+        QuestTrackerModule:ApplySystem()
+        return
+    end
     
     UpdateQuestTrackerPosition()
     ForceUpdateQuestTracker()
@@ -274,6 +314,8 @@ function QuestTrackerModule:Initialize()
     if not IsModuleEnabled() then
         return
     end
+
+    local questieTrackerActive = IsQuestieTrackerActive()
 
     self.questTrackerFrame = CreateFrame('Frame', 'DragonUI_QuestTrackerFrame', UIParent)
     self.questTrackerFrame:SetSize(230, 32)  -- Anchor frame: minimal height, WatchFrame manages its own size
@@ -310,8 +352,11 @@ function QuestTrackerModule:Initialize()
     -- Position the frame
     UpdateQuestTrackerPosition()
     
-    -- Replace the frame immediately upon initialization
-    ReplaceBlizzardFrame(self.questTrackerFrame)
+    -- Replace the frame immediately upon initialization when Questie is not
+    -- already managing the tracker itself.
+    if not questieTrackerActive then
+        ReplaceBlizzardFrame(self.questTrackerFrame)
+    end
 
     -- Register with Editor Mode system
     if addon.RegisterEditableFrame then
@@ -344,10 +389,12 @@ function QuestTrackerModule:Initialize()
     end
 
     self.initialized = true
-    self.applied = true
+    self.applied = not questieTrackerActive
 
-    -- Apply font immediately so WoW's first render already uses our size
-    ApplyQuestTrackerFonts()
+    if not questieTrackerActive then
+        -- Apply font immediately so WoW's first render already uses our size
+        ApplyQuestTrackerFonts()
+    end
 end
 
 -- =============================================================================
@@ -355,6 +402,7 @@ end
 -- =============================================================================
 function QuestTrackerModule:ApplySystem()
     if self.applied then return end
+    if EnsureQuestieCompatibility() then return end
     
     if not self.initialized then
         self:Initialize()
@@ -388,6 +436,7 @@ function QuestTrackerModule:RestoreSystem()
         WatchFrame.background:Hide()
     end
     
+    watchFrameAttached = false
     self.applied = false
 end
 
@@ -416,6 +465,7 @@ local function InstallQuestTrackerHooks()
         hooksecurefunc('WatchFrame_Update', function()
             if watchFrameHookActive then return end  -- Prevent re-entrancy
             if not IsModuleEnabled() then return end
+            if IsQuestieTrackerActive() then return end
             if not QuestTrackerModule.initialized then return end
 
             local watchFrame = WatchFrame
@@ -446,22 +496,26 @@ local function InstallQuestTrackerHooks()
 
     -- Additional hooks to ensure quests are displayed correctly
     hooksecurefunc('AddQuestWatch', function(questIndex)
+        if IsQuestieTrackerActive() then return end
         ScheduleTimer(0.05, ForceUpdateQuestTracker)
     end)
 
     hooksecurefunc('RemoveQuestWatch', function(questIndex)
+        if IsQuestieTrackerActive() then return end
         ScheduleTimer(0.05, ForceUpdateQuestTracker)
     end)
 
     -- Keep tracker consistent when tracked achievements are toggled.
     if AddTrackedAchievement then
         hooksecurefunc('AddTrackedAchievement', function()
+            if IsQuestieTrackerActive() then return end
             ScheduleTimer(0.05, ForceUpdateQuestTracker)
         end)
     end
 
     if RemoveTrackedAchievement then
         hooksecurefunc('RemoveTrackedAchievement', function()
+            if IsQuestieTrackerActive() then return end
             ScheduleTimer(0.05, ForceUpdateQuestTracker)
         end)
     end
@@ -469,6 +523,7 @@ local function InstallQuestTrackerHooks()
     -- Add hook for abandoning quests
     if AbandonQuest then
         hooksecurefunc('AbandonQuest', function()
+            if IsQuestieTrackerActive() then return end
             ScheduleTimer(0.05, ForceUpdateQuestTracker)
         end)
     end
@@ -476,6 +531,7 @@ local function InstallQuestTrackerHooks()
     -- Add hook for quest log updates
     if QuestLog_Update then
         hooksecurefunc('QuestLog_Update', function()
+            if IsQuestieTrackerActive() then return end
             ScheduleTimer(0.05, ForceUpdateQuestTracker)
         end)
     end
@@ -485,6 +541,7 @@ local function InstallQuestTrackerHooks()
         if name == "watchFrameWidth" then
             ScheduleTimer(0.2, function()
                 if not IsModuleEnabled() then return end
+                if EnsureQuestieCompatibility() then return end
                 ForceUpdateQuestTracker()
                 -- Reattach WatchFrame to our anchor (Blizzard repositions it on width change)
                 if QuestTrackerModule.questTrackerFrame then
@@ -500,6 +557,7 @@ local function InstallQuestTrackerHooks()
     if UIParent_ManageFramePositions then
         hooksecurefunc("UIParent_ManageFramePositions", function()
             if not IsModuleEnabled() then return end
+            if IsQuestieTrackerActive() then return end
             if not QuestTrackerModule.initialized then return end
             if QuestTrackerModule.questTrackerFrame then
                 ReplaceBlizzardFrame(QuestTrackerModule.questTrackerFrame)
@@ -625,6 +683,14 @@ end
 local function OnPlayerEnteringWorld()
     -- Check if module is enabled
     if not IsModuleEnabled() then return end
+    if not QuestTrackerModule.initialized then
+        QuestTrackerModule:Initialize()
+    end
+    if EnsureQuestieCompatibility() then return end
+    if not QuestTrackerModule.applied then
+        QuestTrackerModule:ApplySystem()
+        return
+    end
 
     -- Apply font immediately (before hooks are installed) to avoid visible size jump
     ApplyQuestTrackerFonts()
@@ -635,6 +701,7 @@ local function OnPlayerEnteringWorld()
     -- Reapply position on every world entry (login, reload, zone change)
     -- This counters Blizzard's UIParent_ManageFramePositions overriding us
     ScheduleTimer(0.3, function()
+        if EnsureQuestieCompatibility() then return end
         if QuestTrackerModule.initialized and QuestTrackerModule.questTrackerFrame then
             UpdateQuestTrackerPosition()
             ReplaceBlizzardFrame(QuestTrackerModule.questTrackerFrame)
@@ -644,6 +711,7 @@ local function OnPlayerEnteringWorld()
     -- Set up hooks after world load completion with delay (critical fix)
     if not hooksInstalled then
         ScheduleTimer(1.0, function()
+            if EnsureQuestieCompatibility() then return end
             InstallQuestTrackerHooks()
             ForceUpdateQuestTracker()
         end)
@@ -657,6 +725,14 @@ local previousQuestCount = 0
 local function OnQuestLogUpdate()
     -- Check if module is enabled
     if not IsModuleEnabled() then return end
+    if not QuestTrackerModule.initialized then
+        QuestTrackerModule:Initialize()
+    end
+    if EnsureQuestieCompatibility() then return end
+    if not QuestTrackerModule.applied then
+        QuestTrackerModule:ApplySystem()
+        return
+    end
     
     local now = GetTime()
     if now - lastQuestUpdate < 0.05 then return end
