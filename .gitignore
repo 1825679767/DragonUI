@@ -9,7 +9,10 @@
 # VSCode
 .vscode/
 
-.github/
+.github/*
+!.github/FUNDING.yml
+!.github/workflows/
+!.github/workflows/*.yml
 
 .dist/
 

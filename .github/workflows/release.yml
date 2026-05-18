@@ -1,0 +1,161 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "**"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version or tag, for example 2.6.0 or v2.6.0"
+        required: true
+        type: string
+      target_ref:
+        description: "Branch, tag, or commit to release when triggered manually"
+        required: false
+        default: "main"
+        type: string
+      prerelease:
+        description: "Mark this release as a prerelease"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event_name }}-${{ github.event_name == 'push' && github.ref_name || github.event.inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  publish-release:
+    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_ref || github.ref }}
+
+      - name: Resolve release metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          repo_name="${GITHUB_REPOSITORY##*/}"
+
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            tag_name="${GITHUB_REF_NAME}"
+            target_ref="${GITHUB_SHA}"
+            prerelease="false"
+          else
+            raw_version="${{ github.event.inputs.version }}"
+            raw_version="${raw_version// /}"
+
+            if [[ -z "${raw_version}" ]]; then
+              echo "Manual release requires a version or tag." >&2
+              exit 1
+            fi
+
+            if [[ "${raw_version}" == v* ]]; then
+              tag_name="${raw_version}"
+              version="${raw_version#v}"
+            else
+              version="${raw_version}"
+              tag_name="v${raw_version}"
+            fi
+
+            target_ref="${{ github.event.inputs.target_ref }}"
+            prerelease="${{ github.event.inputs.prerelease }}"
+          fi
+
+          if [[ -z "${version:-}" ]]; then
+            version="${tag_name#v}"
+          fi
+
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]] && [[ "${tag_name}" =~ -(alpha|beta|rc|pre|preview)([.-]|$) ]]; then
+            prerelease="true"
+          fi
+
+          asset_name="熊猫插件整合-${version}.zip"
+          release_name="${repo_name} ${tag_name}"
+
+          {
+            echo "repo_name=${repo_name}"
+            echo "tag_name=${tag_name}"
+            echo "version=${version}"
+            echo "target_ref=${target_ref}"
+            echo "prerelease=${prerelease}"
+            echo "asset_name=${asset_name}"
+            echo "release_name=${release_name}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Build release archive
+        id: bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rm -rf dist "${{ steps.meta.outputs.asset_name }}"
+          mkdir -p dist
+
+          cp -R AddOns dist/AddOns
+
+          (
+            cd dist
+            zip -r "../${{ steps.meta.outputs.asset_name }}" "AddOns"
+          )
+
+          echo "asset_path=${{ github.workspace }}/${{ steps.meta.outputs.asset_name }}" >> "${GITHUB_OUTPUT}"
+
+      - name: Create or update GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag_name="${{ steps.meta.outputs.tag_name }}"
+          release_name="${{ steps.meta.outputs.release_name }}"
+          asset_name="${{ steps.meta.outputs.asset_name }}"
+          asset_path="${{ steps.bundle.outputs.asset_path }}"
+          target_ref="${{ steps.meta.outputs.target_ref }}"
+          prerelease="${{ steps.meta.outputs.prerelease }}"
+
+          release_id=""
+          if release_id="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${tag_name}" --jq '.id' 2>/dev/null)"; then
+            echo "Updating existing release for ${tag_name}"
+            gh api "repos/${GITHUB_REPOSITORY}/releases/${release_id}" \
+              --method PATCH \
+              -f name="${release_name}" \
+              -F prerelease="${prerelease}" >/dev/null
+          else
+            echo "Creating new release for ${tag_name}"
+            gh api "repos/${GITHUB_REPOSITORY}/releases" \
+              --method POST \
+              -f tag_name="${tag_name}" \
+              -f target_commitish="${target_ref}" \
+              -f name="${release_name}" \
+              -F prerelease="${prerelease}" \
+              -F generate_release_notes=true >/dev/null
+          fi
+
+          gh release delete-asset "${tag_name}" "${asset_name}" --yes >/dev/null 2>&1 || true
+          gh release upload "${tag_name}" "${asset_path}" --clobber
+
+      - name: Summarize release
+        shell: bash
+        run: |
+          {
+            echo "## Release published"
+            echo ""
+            echo "- Tag: \`${{ steps.meta.outputs.tag_name }}\`"
+            echo "- Version: \`${{ steps.meta.outputs.version }}\`"
+            echo "- Asset: \`${{ steps.meta.outputs.asset_name }}\`"
+            echo "- Target ref: \`${{ steps.meta.outputs.target_ref }}\`"
+            echo "- Prerelease: \`${{ steps.meta.outputs.prerelease }}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
