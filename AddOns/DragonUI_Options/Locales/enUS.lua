@@ -60,6 +60,7 @@ L["Comprehensive profession database with recipe sources, materials, search, and
 L["Tracks gathering nodes and imports database data onto the world map and minimap."] = true
 L["Enhanced world map tools with coordinates, group markers, instance maps, and flexible scaling."] = true
 L["Item stat breakdown and comparison that expands tooltip details for upgrades and sidegrades."] = true
+L["Detailed item tooltip data including sources, reputation, categories, profession usage, and collection context."] = true
 L["Enhanced mailbox tools, bulk mail collection, and contact shortcuts."] = true
 L["Whisper popups and message history with quick reply tools and minimap access."] = true
 L["Automatically sells junk items and manages keep/sell exception lists."] = true
@@ -84,6 +85,7 @@ L["DBM consists of the core, GUI, and multiple raid/party modules that are manag
 L["Kui_Nameplates_Auras is bundled together and follows the same enable state."] = true
 L["AtlasLoot expansion data modules are managed together with the main addon."] = true
 L["TradeskillInfoUI is bundled for the searchable browser and settings window."] = true
+L["Mendeleev adds source and usage details directly into item tooltips and keeps its own Blizzard options pages."] = true
 L["GatherMate_Data stays bundled for database imports."] = true
 L["Postal settings are available from the mailbox interface."] = true
 L["Postal settings are available from the mailbox interface. Open a mailbox first and try again."] = true
@@ -349,6 +351,8 @@ L["Restyle the tooltip health bar with class/reaction colors."] = true
 L["Restyle the tooltip health bar with class/reaction colors and slimmer look."] = true
 L["Anchor to Cursor"] = true
 L["Make the tooltip follow the cursor position instead of the default anchor."] = true
+L["Show Spell IDs"] = true
+L["Show spell IDs on spell tooltips, aura tooltips, and linked spell references."] = true
 
 -- Chat Mods
 L["Chat Mods"] = true

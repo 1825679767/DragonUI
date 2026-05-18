@@ -43,6 +43,7 @@ L["Minimap module restored to Blizzard defaults"] = true
 L["All action bar scales reset to default values"] = true
 L["Minimap position reset to default"] = true
 L["Targeting: %s"] = true
+L["Spell ID"] = true
 L["XP: %d/%d"] = true
 L["GROUP %d"] = true
 L["XP: "] = true

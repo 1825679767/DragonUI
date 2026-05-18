@@ -818,6 +818,38 @@ local function BuildPluginManagementPlaceholder(parent)
             end,
         },
         {
+            key = "mendeleev",
+            title = "Mendeleev",
+            subtitle = LO["Detailed item tooltip data including sources, reputation, categories, profession usage, and collection context."],
+            category = "reference",
+            note = LO["Mendeleev adds source and usage details directly into item tooltips and keeps its own Blizzard options pages."],
+            addons = { "Mendeleev" },
+            getLoaded = function()
+                return GetAceAddon("Mendeleev") ~= nil or _G.Mendeleev ~= nil
+            end,
+            openConfig = function()
+                if type(_G.InterfaceOptionsFrame_OpenToCategory) == "function" then
+                    local frame = _G.MendeleevOptionsFrame or (_G.InterfaceOptionsFrameAddOns and _G.InterfaceOptionsFrameAddOns.Mendeleev)
+                    if frame then
+                        _G.InterfaceOptionsFrame_OpenToCategory(frame)
+                        _G.InterfaceOptionsFrame_OpenToCategory(frame)
+                        if _G.InterfaceOptionsFrame and _G.InterfaceOptionsFrame.Raise then
+                            _G.InterfaceOptionsFrame:Raise()
+                        end
+                        return true
+                    end
+                end
+
+                local aceConfigDialog = GetLibrary("AceConfigDialog-3.0")
+                if aceConfigDialog then
+                    aceConfigDialog:Open("Mendeleev")
+                    return true
+                end
+
+                return false
+            end,
+        },
+        {
             key = "gathermate",
             title = "GatherMate",
             subtitle = LO["Tracks gathering nodes and imports database data onto the world map and minimap."],

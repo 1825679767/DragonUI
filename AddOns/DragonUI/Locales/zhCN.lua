@@ -41,6 +41,7 @@ L["Minimap module restored to Blizzard defaults"] = "小地图模块已恢复为
 L["All action bar scales reset to default values"] = "所有动作条缩放已重置为默认值"
 L["Minimap position reset to default"] = "小地图位置已重置为默认值"
 L["Targeting: %s"] = "目标：%s"
+L["Spell ID"] = "法术 ID"
 L["XP: %d/%d"] = "经验值：%d/%d"
 L["GROUP %d"] = "第 %d 队"
 L["XP: "] = "经验值："

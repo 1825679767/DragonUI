@@ -58,6 +58,7 @@ L["Comprehensive profession database with recipe sources, materials, search, and
 L["Tracks gathering nodes and imports database data onto the world map and minimap."] = "记录采集点，并把数据库数据展示到世界地图和小地图上。"
 L["Enhanced world map tools with coordinates, group markers, instance maps, and flexible scaling."] = "增强世界地图，支持坐标、队友标记、副本地图和灵活缩放。"
 L["Item stat breakdown and comparison that expands tooltip details for upgrades and sidegrades."] = "扩展装备鼠标提示里的属性解析与对比，更容易看出升级和取舍。"
+L["Detailed item tooltip data including sources, reputation, categories, profession usage, and collection context."] = "为物品提示补充更详细的资料信息，包括来源、声望、分类、专业用途和收藏上下文。"
 L["Enhanced mailbox tools, bulk mail collection, and contact shortcuts."] = "增强邮箱功能，支持批量收信和常用联系人快捷操作。"
 L["Whisper popups and message history with quick reply tools and minimap access."] = "提供密语弹窗、密语记录，以及快捷回复和小地图入口。"
 L["Automatically sells junk items and manages keep/sell exception lists."] = "自动出售垃圾物品，并管理保留/出售的例外列表。"
@@ -82,6 +83,7 @@ L["DBM consists of the core, GUI, and multiple raid/party modules that are manag
 L["Kui_Nameplates_Auras is bundled together and follows the same enable state."] = "Kui_Nameplates_Auras 会一并管理，并跟随同样的启用状态。"
 L["AtlasLoot expansion data modules are managed together with the main addon."] = "AtlasLoot 的各资料模块会和主插件一起统一管理。"
 L["TradeskillInfoUI is bundled for the searchable browser and settings window."] = "TradeskillInfoUI 会一并启用，用于搜索面板和设置窗口。"
+L["Mendeleev adds source and usage details directly into item tooltips and keeps its own Blizzard options pages."] = "Mendeleev 会直接在物品提示里补充来源和用途等资料，并保留它自己的暴雪设置页面。"
 L["GatherMate_Data stays bundled for database imports."] = "GatherMate_Data 会一并启用，用于导入采集数据库。"
 L["Postal settings are available from the mailbox interface."] = "Postal 的设置入口在邮箱界面里。"
 L["Postal settings are available from the mailbox interface. Open a mailbox first and try again."] = "Postal 的设置入口在邮箱界面里，请先打开邮箱再试。"
@@ -333,6 +335,8 @@ L["Restyle the tooltip health bar with class/reaction colors."] = "使用职业/
 L["Restyle the tooltip health bar with class/reaction colors and slimmer look."] = "使用职业/关系颜色和更纤细的外观重新设计鼠标提示生命条。"
 L["Anchor to Cursor"] = "锚定到光标"
 L["Make the tooltip follow the cursor position instead of the default anchor."] = "使鼠标提示跟随光标位置，而不是默认的锚点。"
+L["Show Spell IDs"] = "显示法术 ID"
+L["Show spell IDs on spell tooltips, aura tooltips, and linked spell references."] = "在法术提示、光环提示以及聊天中的法术链接提示上显示法术 ID。"
 
 -- 聊天修改
 L["Enable Chat Mods"] = "启用聊天功能修改"

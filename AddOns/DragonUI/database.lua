@@ -695,7 +695,8 @@ local defaults = {
                 class_colored_name = true, -- Color unit name by class
                 target_of_target = true, -- Show target-of-target line
                 health_bar = true, -- Show health bar on tooltip
-                anchor_cursor = false -- Anchor tooltip to cursor
+                anchor_cursor = false, -- Anchor tooltip to cursor
+                spell_id = true -- Show spell IDs on spell and aura tooltips
             },
             itemquality = {
                 enabled = true, -- Color item borders by quality in bags, character panel, bank, merchant

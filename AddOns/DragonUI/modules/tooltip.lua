@@ -52,6 +52,45 @@ local FACTION_COLORS = {
     tapped   = { r = 0.6, g = 0.6, b = 0.6 },
 }
 
+local function TooltipLineExists(tooltip, text)
+    if not tooltip or not text then
+        return false
+    end
+
+    local lineCount = tooltip:NumLines() or 0
+    for i = 1, lineCount do
+        local left = _G[tooltip:GetName() .. "TextLeft" .. i]
+        local right = _G[tooltip:GetName() .. "TextRight" .. i]
+        if (left and left:GetText() == text) or (right and right:GetText() == text) then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function AddTooltipDoubleLine(tooltip, leftText, rightText)
+    if not tooltip or not leftText or rightText == nil then
+        return
+    end
+
+    if TooltipLineExists(tooltip, leftText) then
+        return
+    end
+
+    tooltip:AddDoubleLine(leftText, tostring(rightText), 0.85, 0.82, 0.45, 1, 1, 1)
+end
+
+local function AddSpellIdLine(tooltip, spellID)
+    local config = GetModuleConfig()
+    if not config or not config.spell_id or not spellID then
+        return
+    end
+
+    AddTooltipDoubleLine(tooltip, L["Spell ID"], spellID)
+    tooltip:Show()
+end
+
 -- ============================================================================
 -- TOOLTIP HEALTH BAR ENHANCEMENT
 -- ============================================================================
@@ -423,6 +462,46 @@ local function ApplyTooltipSystem()
             end
         end)
         TooltipModule.hooks["SetUnit"] = true
+    end
+
+    if not TooltipModule.hooks["SetSpell"] then
+        GameTooltip:HookScript("OnTooltipSetSpell", function(self)
+            if not IsModuleEnabled() then return end
+            local _, _, spellID = self:GetSpell()
+            AddSpellIdLine(self, spellID)
+        end)
+        TooltipModule.hooks["SetSpell"] = true
+    end
+
+    if not TooltipModule.hooks["AuraSpellIDs"] then
+        hooksecurefunc(GameTooltip, "SetUnitAura", function(self, ...)
+            if not IsModuleEnabled() then return end
+            local spellID = select(11, UnitAura(...))
+            AddSpellIdLine(self, spellID)
+        end)
+        hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...)
+            if not IsModuleEnabled() then return end
+            local spellID = select(11, UnitBuff(...))
+            AddSpellIdLine(self, spellID)
+        end)
+        hooksecurefunc(GameTooltip, "SetUnitDebuff", function(self, ...)
+            if not IsModuleEnabled() then return end
+            local spellID = select(11, UnitDebuff(...))
+            AddSpellIdLine(self, spellID)
+        end)
+        TooltipModule.hooks["AuraSpellIDs"] = true
+    end
+
+    if not TooltipModule.hooks["ItemRefSpellIDs"] then
+        hooksecurefunc("SetItemRef", function(link)
+            if not IsModuleEnabled() or type(link) ~= "string" then return end
+            local spellID = string.match(link, "^spell:(%d+)")
+            if spellID then
+                AddSpellIdLine(ItemRefTooltip, spellID)
+                ItemRefTooltip:Show()
+            end
+        end)
+        TooltipModule.hooks["ItemRefSpellIDs"] = true
     end
 
     -- Hook GameTooltipStatusBar OnValueChanged to persist class color through

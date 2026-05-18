@@ -470,6 +470,19 @@ local function BuildEnhancementsTab(scroll)
         disabled = function() return not IsEnabled("tooltip") end,
         requiresReload = false,
     })
+
+    C:AddToggle(ttSection, {
+        label = LO["Show Spell IDs"],
+        desc = LO["Show spell IDs on spell tooltips, aura tooltips, and linked spell references."],
+        getFunc = function()
+            return GetModuleField("tooltip", "spell_id") ~= false
+        end,
+        setFunc = function(val)
+            EnsureModuleTable("tooltip").spell_id = val
+        end,
+        disabled = function() return not IsEnabled("tooltip") end,
+        requiresReload = false,
+    })
 end
 
 -- Register the tab (order 11 = after Quest Tracker, before Profiles)
