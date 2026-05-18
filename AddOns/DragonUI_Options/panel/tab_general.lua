@@ -369,25 +369,6 @@ StaticPopupDialogs["DRAGONUI_PRESET_IMPORT_NAME"] = {
 
 local function BuildGeneralTab(scroll)
     -- ====================================================================
-    -- ABOUT
-    -- ====================================================================
-    local about = C:AddSection(scroll, LO["About"])
-
-    C:AddLabel(about, "|cff1784d1" .. LO["DragonUI"] .. " v2.5|r")
-    C:AddDescription(about, LO["Bringing the retail WoW look to 3.3.5a, inspired by Dragonflight UI."])
-    C:AddSpacer(about)
-    C:AddDescription(about, LO["Created and maintained by Neticsoul, with community contributions."])
-    C:AddSpacer(about)
-    C:AddDescription(about, LO["Use the tabs on the left to configure modules, action bars, unit frames, minimap, and more."])
-    C:AddSpacer(about)
-    C:AddDescription(about, LO["Commands: /dragonui, /dui, /pi — /dragonui edit (editor) — /dragonui help"])
-    C:AddSpacer(about)
-    C:AddDescription(about, LO["GitHub (select and Ctrl+C to copy):"])
-    C:AddCopyableText(about, "https://github.com/NeticSoul/DragonUI")
-
-    C:AddSpacer(scroll)
-
-    -- ====================================================================
     -- QUICK ACCESS
     -- ====================================================================
     local actions = C:AddSection(scroll, LO["Quick Actions"])

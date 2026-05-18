@@ -324,7 +324,11 @@ CreateDragonUIButton = function()
         label:SetShadowOffset(1, -1)
         label:ClearAllPoints()
         label:SetPoint("CENTER", dragonUIButton, "CENTER", 0, 1)
-        label:SetText(L["DragonUI"])
+        label:SetText(L["Panda Plugin Pack"] or "Panda Plugin Pack")
+        local desiredWidth = math.ceil((label:GetStringWidth() or 0) + 28)
+        if desiredWidth > (dragonUIButton:GetWidth() or 144) then
+            dragonUIButton:SetWidth(desiredWidth)
+        end
     end
 
     -- ============================================================================

@@ -1569,7 +1569,7 @@ local function CreateDragonUISettingsButton()
         fadein(self)
         if GameTooltip then
             GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-            GameTooltip:SetText("DragonUI")
+            GameTooltip:SetText(L["Panda Plugin Pack"] or "Panda Plugin Pack")
             GameTooltip:AddLine(L["Open plugin management"] or "Open plugin management", 1, 0.82, 0, true)
             GameTooltip:AddLine(L["Drag to move"] or "Drag to move", 0.7, 0.7, 0.7, true)
             GameTooltip:Show()

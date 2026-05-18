@@ -25,6 +25,7 @@ L["Cannot toggle keybind mode during combat!"] = true
 L["Cannot move frames during combat!"] = true
 L["Cannot open options in combat."] = true
 L["Options panel not available. Try /reload."] = true
+L["Panda Plugin Pack"] = true
 
 -- Module availability
 L["Editor mode not available."] = true

@@ -19,6 +19,7 @@ if not L then return end
 -- ============================================================================
 
 L["DragonUI"] = "DragonUI"
+L["Panda Plugin Pack"] = "熊猫插件整合包"
 L["Use the tabs on the left to configure modules, action bars, unit frames, minimap, and more."] = "使用左侧标签页配置模块、动作条、单位框架、小地图等。"
 L["Editor Mode"] = "编辑模式"
 L["Exit Editor Mode"] = "退出编辑模式"

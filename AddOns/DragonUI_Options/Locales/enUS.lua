@@ -20,6 +20,7 @@ if not L then return end
 -- ============================================================================
 
 L["DragonUI"] = true
+L["Panda Plugin Pack"] = true
 L["Use the tabs on the left to configure modules, action bars, unit frames, minimap, and more."] = true
 L["Editor Mode"] = true
 L["KeyBind Mode"] = true

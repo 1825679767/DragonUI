@@ -24,6 +24,7 @@ L["Cannot toggle keybind mode during combat!"] = "战斗中无法切换按键绑
 L["Cannot move frames during combat!"] = "战斗中无法移动框体！"
 L["Cannot open options in combat."] = "战斗中无法打开选项。"
 L["Options panel not available. Try /reload."] = "选项面板不可用，请尝试 /reload。"
+L["Panda Plugin Pack"] = "熊猫插件整合包"
 
 L["Editor mode not available."] = "编辑模式不可用。"
 L["Keybind mode not available."] = "按键绑定模式不可用。"
