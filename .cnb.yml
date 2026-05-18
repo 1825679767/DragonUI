@@ -1,0 +1,161 @@
+.release_publish: &release_publish
+  name: 发布 Release
+  docker:
+    image: python:3.12-alpine
+  stages:
+    - name: 解析发布信息
+      script: |
+        set -eu
+
+        tag="${RELEASE_TAG:-${CNB_BRANCH:-}}"
+        if [ -z "${tag}" ]; then
+          echo "缺少发布 Tag"
+          exit 1
+        fi
+
+        version="${tag#v}"
+        asset_name="熊猫插件整合-${version}.zip"
+        title="熊猫插件整合包 ${tag}"
+
+        case "${tag}" in
+          *-alpha*|*-beta*|*-rc*|*-pre*|*-preview*)
+            prerelease="true"
+            latest="false"
+            ;;
+          *)
+            prerelease="false"
+            latest="true"
+            ;;
+        esac
+
+        echo "##[set-output release_tag=${tag}]"
+        echo "##[set-output release_version=${version}]"
+        echo "##[set-output release_asset_name=${asset_name}]"
+        echo "##[set-output release_title=${title}]"
+        echo "##[set-output release_prerelease=${prerelease}]"
+        echo "##[set-output release_latest=${latest}]"
+      exports:
+        release_tag: RELEASE_TAG
+        release_version: RELEASE_VERSION
+        release_asset_name: RELEASE_ASSET_NAME
+        release_title: RELEASE_TITLE
+        release_prerelease: RELEASE_PRERELEASE
+        release_latest: RELEASE_LATEST
+
+    - name: 打包 AddOns
+      script: |
+        set -eu
+        rm -rf dist
+        mkdir -p dist
+
+        python - <<'PY'
+        import os
+        from pathlib import Path
+        from zipfile import ZipFile, ZIP_DEFLATED
+
+        asset_name = os.environ["RELEASE_ASSET_NAME"]
+        output = Path("dist") / asset_name
+        root = Path("AddOns")
+
+        if not root.is_dir():
+            raise SystemExit("AddOns 目录不存在")
+
+        with ZipFile(output, "w", compression=ZIP_DEFLATED) as zf:
+            for path in sorted(root.rglob("*")):
+                if path.is_file():
+                    zf.write(path, path.as_posix())
+
+        print(f"Created {output}")
+        PY
+
+    - name: 生成发布说明
+      script: |
+        set -eu
+        mkdir -p dist
+
+        cat > dist/RELEASE_NOTES.md <<EOF
+        发布版本：${RELEASE_TAG}
+
+        附件说明：
+        - 文件名：${RELEASE_ASSET_NAME}
+        - 压缩包内容：仅包含 AddOns 目录
+        EOF
+
+    - name: 创建或更新 Release
+      type: git:release
+      options:
+        overlying: true
+        tag: $RELEASE_TAG
+        title: $RELEASE_TITLE
+        descriptionFromFile: dist/RELEASE_NOTES.md
+        preRelease: $RELEASE_PRERELEASE
+        latest: $RELEASE_LATEST
+
+    - name: 上传 Release 附件
+      image: cnbcool/attachments:latest
+      settings:
+        tag: $RELEASE_TAG
+        attachments:
+          - ./dist/$RELEASE_ASSET_NAME
+
+.manual_release: &manual_release
+  name: 手动创建发布 Tag
+  docker:
+    image: alpine/git:2.52.0
+  stages:
+    - name: 校验版本号并推送 Tag
+      script: |
+        set -eu
+
+        version="$(printf "%s" "${RELEASE_VERSION:-}" | tr -d '[:space:]')"
+        if [ -z "${version}" ]; then
+          echo "请填写版本号"
+          exit 1
+        fi
+
+        case "${version}" in
+          v*) tag="${version}" ;;
+          *) tag="v${version}" ;;
+        esac
+
+        repo_url="${CNB_REPO_URL_HTTPS#https://}"
+        auth_url="https://cnb:${CNB_TOKEN}@${repo_url}"
+
+        git config --global user.name "cnb-release-bot"
+        git config --global user.email "cnb-release-bot@local"
+        git remote set-url origin "${auth_url}"
+        git fetch --tags origin
+
+        if git rev-parse "${tag}" >/dev/null 2>&1; then
+          echo "Tag ${tag} 已存在，请更换版本号"
+          exit 1
+        fi
+
+        git tag -a "${tag}" "${CNB_COMMIT}" -m "release ${tag}"
+        git push origin "refs/tags/${tag}"
+
+        echo "已推送 Tag ${tag}，后续将自动触发 tag_push 发布流水线"
+
+main:
+  auto_tag:
+    - name: 自动生成 Tag
+      stages:
+        - name: 生成 Tag
+          image: cnbcool/git-auto-tag:latest
+          settings:
+            tagFormat: 'v\${version}'
+            branch: $CNB_BRANCH
+            repoUrlHttps: $CNB_REPO_URL_HTTPS
+            releaseRules: $RELEASE_RULES
+          exports:
+            tag: NEW_TAG
+        - name: 输出生成结果
+          script: echo "生成 Tag：$NEW_TAG"
+
+"**":
+  web_trigger_release:
+    - <<: *manual_release
+
+$:
+  tag_push:
+    - <<: *release_publish

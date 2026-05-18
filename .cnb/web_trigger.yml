@@ -1,0 +1,14 @@
+branch:
+  - buttons:
+      - name: 发布版本
+        description: 为当前分支最新提交创建 Tag，并自动发布 Release
+        event: web_trigger_release
+        isDefault: true
+        groupName: Release
+        inputs:
+          RELEASE_VERSION:
+            name: 版本号
+            description: 支持 2.6.0、v2.6.0 或 v2.6.0-beta.1
+            placeholder: 例如 v2.6.0
+            required: true
+            type: input

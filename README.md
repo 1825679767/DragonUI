@@ -1,164 +1,272 @@
-# 🐉 DragonUI for 3.3.5a
+# 熊猫插件整合包
 
-<div align="center">
+> 基于 `DragonUI` 深度改造与整合的《魔兽世界》3.3.5a 插件集合，目标是把常用界面、美化、团队、任务、资料与实用插件统一到一套开箱可用的包里。
 
 ![Interface Version](https://img.shields.io/badge/Interface-30300-blue)
 ![WoW Version](https://img.shields.io/badge/WoW-3.3.5a-orange)
-[![Version](https://img.shields.io/badge/Version-2.5-green)](https://github.com/NeticSoul/DragonUI/releases/tag/v2.5)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-[![Ko-fi](https://img.shields.io/badge/Support-Ko--fi-ff5e5b?logo=ko-fi)](https://ko-fi.com/neticsoul)
-![Downloads](https://img.shields.io/github/downloads/NeticSoul/DragonUI/total)
-
-**A modular, retail-inspired UI addon for World of Warcraft 3.3.5a (Wrath of the Lich King).**
-
-</div>
+![Release](https://img.shields.io/badge/Release-Tag-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ---
 
-<img width="1917" height="1054" alt="image" src="https://github.com/user-attachments/assets/dd45ed01-a35e-45fb-8426-897d29d35917" />
+<img width="1917" height="1054" alt="熊猫插件整合包界面预览" src="https://github.com/user-attachments/assets/dd45ed01-a35e-45fb-8426-897d29d35917" />
+
 <details>
-<summary><strong>See more screenshots (click to expand)</strong></summary>
-<img width="1918" height="1054" alt="image" src="https://github.com/user-attachments/assets/d29e956a-4831-4a99-b1f3-4f3208a337e2" />
-<img width="1917" height="1054" alt="image" src="https://github.com/user-attachments/assets/761d0315-ac4c-4aff-8e60-75beea91fdb1" />
-<img width="1076" height="745" alt="image" src="https://github.com/user-attachments/assets/47a14b2f-f7ec-46ab-af35-e938d52d0e09" />
+<summary><strong>更多界面截图（点击展开）</strong></summary>
+<img width="1918" height="1054" alt="界面截图 1" src="https://github.com/user-attachments/assets/d29e956a-4831-4a99-b1f3-4f3208a337e2" />
+<img width="1917" height="1054" alt="界面截图 2" src="https://github.com/user-attachments/assets/761d0315-ac4c-4aff-8e60-75beea91fdb1" />
+<img width="1076" height="745" alt="配置界面截图" src="https://github.com/user-attachments/assets/47a14b2f-f7ec-46ab-af35-e938d52d0e09" />
 </details>
 
-## 📥 Download
+## 项目简介
 
-| Method | Link |
-|--------|------|
-| **Latest stable release** | [Download](https://github.com/NeticSoul/DragonUI/releases/download/v2.5/DragonUI-2.5.zip) |
-| **Cutting-edge (main branch)** | [Download](https://github.com/NeticSoul/DragonUI/archive/refs/heads/main.zip) |
+这不是单一插件，而是一套围绕 `DragonUI` 构建的 3.3.5a 整合方案。
 
-> The main branch always contains the most recent features and fixes. Releases are periodic snapshots that have been tested more thoroughly.
+当前整合包包含：
 
-## 📦 Installation
+- `DragonUI` 核心界面系统
+- `DragonUI_Options` 自定义配置面板
+- 任务辅助、资料查询、团队治疗、团队提醒、PvP 提示、战斗统计、邮件与垃圾处理等常用插件
+- 针对整合场景做过的兼容与统一配置处理
 
-<details>
-<summary><strong>How to install (click to expand)</strong></summary>
+目前的目标不是“把插件都堆进来”，而是：
 
-1. Download the ZIP from one of the links above.
-2. Extract it and open the folder.
-3. Copy both `DragonUI` and `DragonUI_Options` to:
+1. 保持主界面风格统一
+2. 让常用插件都能从一个入口管理
+3. 尽量减少重复功能和互相冲突
+4. 为 3.3.5a 私服 / 非官方环境保留足够的兼容弹性
+
+## 当前整合亮点
+
+### 1. 统一界面基础
+
+- 基于 `DragonUI` 的动作条、单位框体、施法条、小地图、聊天、背包、微型菜单与经验/声望条
+- 支持深色模式、发光效果、零件缩放、框体移动与布局微调
+- 内置编辑模式与按键绑定模式
+- 支持配置导入、导出、预设保存和配置文件切换
+
+### 2. 统一插件管理入口
+
+游戏内提供“插件管理”页面，可直接：
+
+- 查看当前整合插件的启用状态
+- 按分类管理插件
+- 打开大部分插件自己的设置界面
+- 通过同一套界面控制整合内容
+
+### 3. 已做的重点整合
+
+- `Questie-335`
+  - 已接入整合包
+  - 强制关闭 Questie 自带任务追踪器，统一使用 `DragonUI` 的任务追踪样式
+  - 修复了 3.3.5 环境下追踪头部宽度相关报错
+  - 对私服常见的“Questie 数据库缺失任务”红字做了定向静音处理
+
+- `EventAlert`
+  - 已移植接入
+  - 可用于法术触发、增益与目标减益提醒
+
+- `RaidAlerter`
+  - 已接入整合包
+  - 适合团队环境下的警报、误导、驱散、团队检查与提示场景
+
+- 小地图与菜单入口
+  - 统一增加整合包入口按钮
+  - 配置面板左上角、ESC 菜单按钮、小地图按钮提示统一使用“熊猫插件整合包”品牌名称
+
+## 已整合插件一览
+
+下面是当前仓库中已经纳入整合包的主要插件方向。
+
+### 首领战斗 / 副本提醒
+
+- `DBM-Core`
+- `DBM-GUI`
+- `DBM` 各资料片与副本模块
+
+### 团队 / 治疗 / 团长工具
+
+- `Grid2`
+- `Grid2Options`
+- `Grid2StatusRaidDebuffs`
+- `Grid2StatusRaidDebuffsOptions`
+- `Clique`
+- `Decursive`
+- `oRA3`
+- `RaidAlerter`
+
+### PvP
+
+- `GladiatorlosSA`
+
+### 任务 / 地图 / 资料
+
+- `Questie-335`
+- `Atlas`
+- `AtlasLoot`
+- `Mapster`
+- `GatherMate`
+- `GatherMate_Data`
+- `TradeskillInfo`
+- `TradeskillInfoUI`
+- `Mendeleev`
+- `RatingBuster`
+
+### 界面增强 / 实用工具
+
+- `Kui_Nameplates`
+- `Kui_Nameplates_Auras`
+- `EventAlert`
+- `Postal`
+- `WhisperPop`
+- `SellJunk`
+
+### 战斗统计
+
+- `Skada`
+
+## 安装方式
+
+### 方式一：使用发布包
+
+发布包命名规则为：
+
+```text
+熊猫插件整合-版本.zip
+```
+
+压缩包内只包含：
+
+```text
+AddOns/
+```
+
+安装步骤：
+
+1. 下载发布包并解压
+2. 打开解压后的 `AddOns` 目录
+3. 将其中所有插件文件夹复制到：
 
 ```text
 World of Warcraft/Interface/AddOns/
 ```
 
-4. Start the game and verify `DragonUI` and `DragonUI_Options` are enabled in the AddOns list.
-5. Open settings with `/dui`.
+4. 进入游戏，在插件列表里确认相关插件已启用
+5. 使用 `/dui` 或 `/dragonui` 打开配置界面
 
-**Clean install (reset settings):** Delete:
+### 方式二：直接使用仓库内容
+
+如果你是自己打包或手动同步：
+
+1. 直接使用仓库中的 `AddOns` 目录
+2. 将 `AddOns` 下所有子目录复制到客户端的 `Interface/AddOns/`
+3. 覆盖旧文件后重载游戏
+
+## 更新建议
+
+从旧版本升级时，建议：
+
+- 先备份 `WTF` 目录里的相关配置
+- 如果出现界面错位、旧配置残留或插件行为异常，再考虑清理对应的 `SavedVariables`
+- 大版本整合变动后，优先使用新配置重新测试
+
+## 常用命令
+
+### 主界面 / 配置
+
+- `/dragonui`
+- `/dui`
+- `/pi`
+
+作用：打开整合包主配置面板。
+
+### 编辑模式 / 绑定模式
+
+- `/dragonui edit`：切换编辑模式
+- `/dragonui kb`：切换按键绑定模式
+
+### 兼容与诊断
+
+- `/duicomp`：打开兼容诊断与状态检查
+- `/dragonui debug on`
+- `/dragonui debug off`
+- `/dragonui debug status`
+
+### 背包与整理
+
+- `/sort`：整理背包
+- `/sortbank`：整理银行
+- `/sortlock`：锁定当前鼠标指向物品/格子
+
+### 聊天与快捷功能
+
+- `/tt <内容>`：密语当前目标
+- `/rl`：重载界面
+
+## 当前整合说明
+
+### Questie 相关
+
+- 当前整合策略是：保留 Questie 的地图标记、任务搜索、鼠标提示等能力
+- 关闭 Questie 自带追踪器，统一使用 `DragonUI` 的任务追踪界面
+- 对私服常见自定义任务 ID 导致的红字提示做了整合层处理，避免无意义刷屏
+
+### 配置入口
+
+当前可以从以下位置打开或进入整合包配置：
+
+- 聊天命令 `/dragonui`、`/dui`、`/pi`
+- 小地图整合按钮
+- ESC 菜单中的“熊猫插件整合包”按钮
+
+### 配置面板品牌
+
+当前配置面板已统一展示为：
 
 ```text
-WTF/Account/<YourAccount>/SavedVariables/DragonUI*
+熊猫插件整合包
 ```
 
-</details>
+不再沿用原始的 `DragonUI 2.5` 标题展示。
 
-## ✨ Features
+## 已知说明
 
-### Core UI
+- 本整合包面向 `WoW 3.3.5a`
+- 部分外部插件本身存在年代较久、私服环境差异较大的情况，遇到兼容问题时需要单独处理
+- 如果第三方服务器修改了法术、任务、地图或团队 API，个别插件可能仍需进一步适配
 
-- 🧩 Modular system: enable or disable any major UI component independently.
-- ⚙️ Custom configuration panel with profile support and per-module controls.
-- ⌨️ Editor Mode: move and reposition nearly every UI element, with live X/Y coordinates and pixel-by-pixel position controls.
-- 📋 Layout Presets: save, load, duplicate, delete, import, and export full UI layouts and addon settings using shareable export codes.
-- 🌍 Localization for English, Spanish (ES/MX), German, Korean, Russian, Simplified Chinese, and Traditional Chinese.
+## 仓库结构
 
-### Frames And Bars
+```text
+AddOns/                 游戏实际使用的插件目录
+LICENSES/               第三方许可证
+THIRD_PARTY_NOTICES.md  第三方组件说明
+```
 
-- 🎯 Action bars with configurable grid layouts, visibility rules, and button spacing.
-- 💚 Unit frames for player, target, focus, party, pet, boss, ToT, and ToF, with elite dragon decoration, class portrait icons, and fat health bar mode.
-- 🩹 Unit Frame Layers: heal prediction, absorb shields, and animated health loss overlays.
-- 🔮 Castbars: custom castbars for player, target, and focus, with simple and detailed display modes, plus a built-in latency indicator on the player castbar.
-- 📊 XP & Reputation bars with Dragonflight and RetailUI styles, independently movable.
+如果你要做发布或同步，最核心的就是 `AddOns/`。
 
-### Visual Style
+## 致谢
 
-- 🖼️ HD textures for player frame (normal mode), target and focus name backgrounds. More HD assets coming in future updates.
-- 🌙 Dark Mode with three intensity presets and custom color picker.
-- ✨ Glow effects with separate combat and rest status controls and opacity slider.
+本整合包建立在以下项目和作者的工作基础之上：
 
-### Inventory And Navigation
+- `DragonUI`
+- `Questie`
+- `DBM`
+- `Grid2`
+- `oRA3`
+- `Atlas / AtlasLoot`
+- `Mapster`
+- `GatherMate`
+- `TradeskillInfo`
+- `Skada`
+- 以及仓库中所有被整合进来的第三方插件作者
 
-- 🎒 Auto-sort for bags and bank with slot locking, plus integrated Combuctor for unified inventory browsing.
-- 🗺️ Custom Retail-style minimap (compatible with SexyMap).
+## 许可证与声明
 
-### Utility And Quality Of Life
+- `DragonUI` 自身代码遵循 [MIT License](LICENSE)
+- 仓库中整合的第三方插件与资源，仍分别遵循其各自许可证
+- 详细说明见：
+  - [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+  - `LICENSES/`
 
-- 💬 Chat enhancements: style skins, fade sync, movable textbox with adjustable opacity, URL detection, chat copy, vanilla chat buttons with hover visibility, and `/tt` whisper command.
-- 💎 Item quality borders, enhanced tooltips with class-colored borders, and range indicator.
-- ⌨️ Easy-to-use keybinding mode on supported buttons.
-
-Extensive customization available directly in-game through the configuration panel.
-
-<!-- TODO: Add 2-3 screenshots here showing:
-     1. The main UI in gameplay
-     2. The options panel
-     3. Editor mode with overlays visible
--->
-
-## 🔧 Commands
-
-| Command | Action |
-|---------|--------|
-| `/dragonui` or `/dui` | Open the configuration panel |
-| `/dragonui edit` | Toggle Editor Mode |
-| `/dragonui help` | Show all available commands |
-| `/duicomp` | Compatibility diagnostics |
-| `/sort` | Sort your bags |
-| `/tt <message>` | Whisper your current target |
-| `/rl` | Reload the UI |
-
-## ⚠️ Known Issues
-
-- Party/raid role icons (DPS, Healer, Tank) may be lost after `/reload` in Dungeon Finder groups.
-- Single-line tooltips show text overlapping the health bar.
-- Party and raid scenarios require further edge-case testing.
-- Some third-party addon setups may require manual module disabling.
-- Found a bug? [Open an issue](https://github.com/NeticSoul/DragonUI/issues).
-
-## 🙏 Credits And References
-
-DragonUI builds on original work and adapted ideas from these addon authors and projects:
-
-| Project | Author | Contribution |
-|---------|--------|-------------|
-| [Dragonflight UI (Classic)](https://github.com/Karl-HeinzSchneider) | Karl-HeinzSchneider | Primary design reference |
-| [pretty_actionbar / pretty_minimap](https://github.com/s0h2x) | s0h2x | Action bar and minimap patterns |
-| [RetailUI](https://github.com/a3st) | a3st (Dmitriy) | UI styling reference |
-| [KPack](https://github.com/bkader/KPack) | bkader | Utility patterns |
-| [Combuctor](https://github.com/Jaliborc) | Jaliborc | Bag integration |
-| [BankStack](https://github.com/kemayo/) | kemayo | Bank sort logic |
-| [UnitFrameLayers](https://github.com/RomanSpector) | RomanSpector | Heal/absorb overlay reference |
-| [oGlow](https://github.com/haste) | haste | Item quality border reference |
-| [ElvUI-WotLK](https://github.com/ElvUI-WotLK/) | ElvUI team | Pattern reference |
-| [Quartz](https://github.com/Nevcairiel/Quartz) | Hendrik Leppkes | Latency indicator concept |
-| [CrimsonHollow](https://github.com/CrimsonHollow) | CrimsonHollow | Fat Health Bar contribution |
-| [RovBot](https://github.com/RovxBot) | RovBot | Action bar grid/preset system |
-| [Raz0r](https://github.com/Raz0r1337) | Raz0r | German localization |
-| [nadugi](https://github.com/nadugi) | nadugi | Korean localization |
-
-Missing from the list? [Let me know](https://github.com/NeticSoul/DragonUI/issues).
-
-## 💛 Special Thanks
-
-- Everyone who tested early builds, reported bugs, and helped shape this addon.
-- Translators who contributed localizations across different clients.
-- The open-source addon community whose work made this project possible.
-
-## 📜 License
-
-DragonUI is released under the [MIT License](LICENSE). Bundled third-party components have their own licenses - see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and [`LICENSES/`](LICENSES/).
-
-## 📎 Disclaimer
-
-DragonUI is a free, fan-made addon. No content is sold and no in-game advantages are provided. Donations are entirely voluntary. Not affiliated with or endorsed by Blizzard Entertainment.
-
-## ☕ Support The Project
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/neticsoul)
-
-🪙 Bitcoin: `bc1q8yavz8857lzdfttas584892gf82y0u3wdfjz0a`
-
+本项目为玩家整理与整合用途，不隶属于也不代表暴雪娱乐。
