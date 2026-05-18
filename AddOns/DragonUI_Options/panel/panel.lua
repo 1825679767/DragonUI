@@ -775,11 +775,34 @@ local function BuildPluginManagementPlaceholder(parent)
             end,
         },
         {
+            key = "atlas",
+            title = "Atlas",
+            subtitle = LO["Dungeon and raid map browser that lets AtlasLoot show drops directly inside instance maps."],
+            category = "reference",
+            note = LO["Atlas map modules are bundled together so instance, battleground, transport, and outdoor raid maps stay in sync."],
+            addons = { "Atlas", "Atlas_Battlegrounds", "Atlas_DungeonLocs", "Atlas_OutdoorRaids", "Atlas_Transportation" },
+            getLoaded = function()
+                return _G.AtlasFrame ~= nil or type(_G.Atlas_Toggle) == "function"
+            end,
+            openConfig = function()
+                if type(_G.Atlas_Toggle) == "function" then
+                    if not (_G.AtlasFrame and _G.AtlasFrame:IsShown()) then
+                        _G.Atlas_Toggle()
+                    end
+                    if _G.AtlasFrame and _G.AtlasFrame.Raise then
+                        _G.AtlasFrame:Raise()
+                    end
+                    return _G.AtlasFrame and _G.AtlasFrame:IsShown()
+                end
+                return false
+            end,
+        },
+        {
             key = "atlasloot",
             title = "AtlasLoot",
             subtitle = LO["Loot, crafting, faction, and event reward browser with bundled expansion data modules."],
             category = "reference",
-            note = LO["AtlasLoot expansion data modules are managed together with the main addon."],
+            note = LO["Open the Atlas map browser. AtlasLoot can hook into Atlas to show boss loot directly on these maps."],
             addons = {
                 "AtlasLoot", "AtlasLoot_OriginalWoW", "AtlasLoot_BurningCrusade",
                 "AtlasLoot_Crafting", "AtlasLoot_WorldEvents", "AtlasLoot_WrathoftheLichKing",

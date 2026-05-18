@@ -56,6 +56,7 @@ L["One-click dispel assistance with priority and debuff list tools."] = true
 L["Raid tools for ready checks, durability, cooldowns, loot, and tank assignments."] = true
 L["Spoken PvP alerts for arena and battleground abilities."] = true
 L["Loot, crafting, faction, and event reward browser with bundled expansion data modules."] = true
+L["Dungeon and raid map browser that lets AtlasLoot show drops directly inside instance maps."] = true
 L["Comprehensive profession database with recipe sources, materials, search, and who-can-learn tracking."] = true
 L["Tracks gathering nodes and imports database data onto the world map and minimap."] = true
 L["Enhanced world map tools with coordinates, group markers, instance maps, and flexible scaling."] = true
@@ -84,6 +85,8 @@ L["Clique relies on the spellbook window. The spellbook is now opened for you; c
 L["DBM consists of the core, GUI, and multiple raid/party modules that are managed together."] = true
 L["Kui_Nameplates_Auras is bundled together and follows the same enable state."] = true
 L["AtlasLoot expansion data modules are managed together with the main addon."] = true
+L["Atlas map modules are bundled together so instance, battleground, transport, and outdoor raid maps stay in sync."] = true
+L["Open the Atlas map browser. AtlasLoot can hook into Atlas to show boss loot directly on these maps."] = true
 L["TradeskillInfoUI is bundled for the searchable browser and settings window."] = true
 L["Mendeleev adds source and usage details directly into item tooltips and keeps its own Blizzard options pages."] = true
 L["GatherMate_Data stays bundled for database imports."] = true
