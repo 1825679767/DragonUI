@@ -2414,8 +2414,6 @@ end
 
     -- LFG Frame customization
     local function ApplyLFGFrameStyle()
-        MiniMapLFGFrame:SetClearPoint('LEFT', _G.CharacterMicroButton, -32, 2)
-        MiniMapLFGFrame:SetScale(1.6)
         MiniMapLFGFrameBorder:SetTexture(nil)
         MiniMapLFGFrame.eye.texture:SetTexture(addon._dir .. 'uigroupfinderflipbookeye.tga')
     end
