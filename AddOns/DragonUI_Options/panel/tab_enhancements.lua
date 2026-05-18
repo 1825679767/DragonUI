@@ -182,6 +182,150 @@ local function BuildEnhancementsTab(scroll)
         width = 200,
     })
 
+    C:AddToggle(iqSection, {
+        label = LO["Show Durability Text"],
+        desc = LO["Display durability text on equipment slots in the character window."],
+        getFunc = function()
+            local val = GetModuleField("itemquality", "show_durability")
+            return val ~= false
+        end,
+        setFunc = function(val)
+            EnsureModuleTable("itemquality").show_durability = val
+        end,
+        callback = function()
+            if addon.UpdateAllQualityBorders then addon.UpdateAllQualityBorders() end
+        end,
+        disabled = function() return not IsEnabled("itemquality") end,
+        requiresReload = false,
+    })
+
+    C:AddToggle(iqSection, {
+        label = LO["Use Percentage Text"],
+        desc = LO["Show durability as a percentage instead of current/max values."],
+        getFunc = function()
+            local val = GetModuleField("itemquality", "durability_percent")
+            return val ~= false
+        end,
+        setFunc = function(val)
+            EnsureModuleTable("itemquality").durability_percent = val
+        end,
+        callback = function()
+            if addon.UpdateAllQualityBorders then addon.UpdateAllQualityBorders() end
+        end,
+        disabled = function()
+            return not IsEnabled("itemquality") or GetModuleField("itemquality", "show_durability") == false
+        end,
+        requiresReload = false,
+    })
+
+    C:AddToggle(iqSection, {
+        label = LO["Show At Full Durability"],
+        desc = LO["Keep durability text visible even when an item is fully repaired."],
+        getFunc = function()
+            return GetModuleField("itemquality", "show_full_durability") == true
+        end,
+        setFunc = function(val)
+            EnsureModuleTable("itemquality").show_full_durability = val
+        end,
+        callback = function()
+            if addon.UpdateAllQualityBorders then addon.UpdateAllQualityBorders() end
+        end,
+        disabled = function()
+            return not IsEnabled("itemquality") or GetModuleField("itemquality", "show_durability") == false
+        end,
+        requiresReload = false,
+    })
+
+    C:AddToggle(iqSection, {
+        label = LO["Show Repair Cost"],
+        desc = LO["Display total repair cost in the character window."],
+        getFunc = function()
+            local val = GetModuleField("itemquality", "show_repair_cost")
+            return val ~= false
+        end,
+        setFunc = function(val)
+            EnsureModuleTable("itemquality").show_repair_cost = val
+        end,
+        callback = function()
+            if addon.UpdateAllQualityBorders then addon.UpdateAllQualityBorders() end
+        end,
+        disabled = function() return not IsEnabled("itemquality") end,
+        requiresReload = false,
+    })
+
+    C:AddDescription(iqSection, LO["Show durability text on equipped gear in the character window and display total repair cost."])
+
+    -- ====================================================================
+    -- MERCHANT ENHANCEMENTS
+    -- ====================================================================
+    C:AddSpacer(scroll)
+    local merchantSection = C:AddSection(scroll, LO["Merchant Enhancements"])
+
+    C:AddDescription(merchantSection, LO["Improves the merchant window with automatic repairs and a larger item list layout."])
+
+    C:AddToggle(merchantSection, {
+        label = LO["Enable Merchant Enhancements"],
+        desc = LO["Expand the merchant item list and enable related quality-of-life improvements."],
+        getFunc = function() return IsEnabled("merchantplus") end,
+        setFunc = function(val)
+            EnsureModuleTable("merchantplus").enabled = val
+            if val then
+                if addon.RefreshMerchantPlusSystem then addon.RefreshMerchantPlusSystem() end
+            else
+                if addon.RestoreMerchantPlusSystem then addon.RestoreMerchantPlusSystem() end
+            end
+            Panel:SelectTab("enhancements")
+        end,
+        requiresReload = false,
+    })
+
+    C:AddToggle(merchantSection, {
+        label = LO["Automatic Repairs"],
+        desc = LO["Automatically repair gear when visiting a merchant who can repair."],
+        getFunc = function()
+            local val = GetModuleField("merchantplus", "auto_repair")
+            return val ~= false
+        end,
+        setFunc = function(val)
+            EnsureModuleTable("merchantplus").auto_repair = val
+        end,
+        disabled = function() return not IsEnabled("merchantplus") end,
+        requiresReload = false,
+    })
+
+    C:AddToggle(merchantSection, {
+        label = LO["Prefer Guild Bank Repairs"],
+        desc = LO["Use guild bank repair funds first when the merchant allows it."],
+        getFunc = function()
+            local val = GetModuleField("merchantplus", "use_guild_bank")
+            return val ~= false
+        end,
+        setFunc = function(val)
+            EnsureModuleTable("merchantplus").use_guild_bank = val
+        end,
+        disabled = function()
+            return not IsEnabled("merchantplus") or GetModuleField("merchantplus", "auto_repair") == false
+        end,
+        requiresReload = false,
+    })
+
+    C:AddToggle(merchantSection, {
+        label = LO["Expanded Merchant Layout"],
+        desc = LO["Show up to 20 merchant items per page in a wider multi-column layout."],
+        getFunc = function()
+            local val = GetModuleField("merchantplus", "expanded_layout")
+            return val ~= false
+        end,
+        setFunc = function(val)
+            EnsureModuleTable("merchantplus").expanded_layout = val
+        end,
+        callback = function()
+            if addon.RefreshMerchantPlusSystem then addon.RefreshMerchantPlusSystem() end
+        end,
+        disabled = function() return not IsEnabled("merchantplus") end,
+        requiresReload = false,
+    })
+
     -- ====================================================================
     -- UNIT FRAME LAYERS
     -- ====================================================================

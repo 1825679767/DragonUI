@@ -1,4 +1,5 @@
 local addon = select(2, ...)
+local L = addon.L
 
 -- ============================================================================
 -- ITEM QUALITY BORDERS MODULE FOR DRAGONUI
@@ -36,6 +37,20 @@ end
 local function IsModuleEnabled()
     return addon:IsModuleEnabled("itemquality")
 end
+
+local function IsDurabilityTextEnabled()
+    local config = GetModuleConfig()
+    return config and config.show_durability ~= false
+end
+
+local function IsRepairCostEnabled()
+    local config = GetModuleConfig()
+    return config and config.show_repair_cost ~= false
+end
+
+-- Forward declarations used by durability / repair helpers.
+local EQUIP_SLOTS
+local BAG_EQUIP_SLOT_IDS
 
 -- ============================================================================
 -- QUALITY COLORS
@@ -100,6 +115,191 @@ local function SetOverlayQuality(frame, quality)
 end
 
 -- ============================================================================
+-- CHARACTER DURABILITY DISPLAY
+-- ============================================================================
+
+local DURABILITY_FONT_SIZE = 11
+
+local function GetOrCreateDurabilityText(frame)
+    if not frame then
+        return nil
+    end
+
+    if frame.__DragonUI_DurabilityText then
+        return frame.__DragonUI_DurabilityText
+    end
+
+    local text = frame:CreateFontString(nil, "OVERLAY")
+    text:SetDrawLayer("OVERLAY", 7)
+    text:SetFont(STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF", DURABILITY_FONT_SIZE, "OUTLINE")
+    text:SetPoint("CENTER", frame, "BOTTOM", 0, 8)
+    text:Hide()
+
+    frame.__DragonUI_DurabilityText = text
+    return text
+end
+
+local function HideDurabilityText(frame)
+    if frame and frame.__DragonUI_DurabilityText then
+        frame.__DragonUI_DurabilityText:Hide()
+        frame.__DragonUI_DurabilityText:SetText("")
+    end
+end
+
+local function GetDurabilityColor(ratio)
+    if not ratio or ratio <= 0 then
+        return 1, 0, 0
+    end
+
+    if ratio <= 0.5 then
+        return 1, ratio * 2, 0
+    end
+
+    if ratio >= 1 then
+        return 0, 1, 0
+    end
+
+    return 2 - (ratio * 2), 1, 0
+end
+
+local function UpdateCharacterDurability(button, slotID)
+    if not button then
+        return
+    end
+
+    local text = GetOrCreateDurabilityText(button)
+    if not text then
+        return
+    end
+
+    if not IsModuleEnabled() or not IsDurabilityTextEnabled() then
+        HideDurabilityText(button)
+        return
+    end
+
+    local current, maximum = GetInventoryItemDurability(slotID)
+    current = tonumber(current) or 0
+    maximum = tonumber(maximum) or 0
+
+    if maximum <= 0 then
+        HideDurabilityText(button)
+        return
+    end
+
+    local config = GetModuleConfig() or {}
+    local ratio = current / maximum
+    local percent = math.floor((ratio * 100) + 0.5)
+
+    if percent >= 100 and config.show_full_durability ~= true then
+        HideDurabilityText(button)
+        return
+    end
+
+    if config.durability_percent == false then
+        text:SetText(current .. "/" .. maximum)
+    else
+        text:SetText(percent .. "%")
+    end
+
+    text:SetTextColor(GetDurabilityColor(ratio))
+    text:Show()
+end
+
+local function EnsureRepairTooltip()
+    if ItemQualityModule.frames.repairTooltip then
+        return ItemQualityModule.frames.repairTooltip
+    end
+
+    local tooltip = CreateFrame("GameTooltip", "DragonUIRepairTooltip", UIParent, "GameTooltipTemplate")
+    tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+    tooltip:SetAlpha(0)
+
+    ItemQualityModule.frames.repairTooltip = tooltip
+    return tooltip
+end
+
+local function EnsureRepairCostFrame()
+    if ItemQualityModule.frames.repairCostFrame then
+        return ItemQualityModule.frames.repairCostFrame
+    end
+
+    local parent = _G.PaperDollFrame or _G.CharacterFrame or UIParent
+    local anchor = _G.PlayerStatFrameLeftDropDown or _G.PaperDollFrame or _G.CharacterFrame or UIParent
+    local frame = CreateFrame("Frame", "DragonUICharacterRepairFrame", parent)
+    frame:SetSize(180, 28)
+    frame:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", 24, 4)
+
+    local label = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    label:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 14)
+    label:SetJustifyH("LEFT")
+    label:SetText((L and L["Repair Cost"]) or "Repair Cost")
+    frame.label = label
+
+    local amount = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    amount:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -1)
+    amount:SetJustifyH("LEFT")
+    frame.amount = amount
+
+    ItemQualityModule.frames.repairCostFrame = frame
+    return frame
+end
+
+local function UpdateRepairCostDisplay()
+    local frame = EnsureRepairCostFrame()
+    if not frame then
+        return
+    end
+
+    if not IsModuleEnabled() or not IsRepairCostEnabled() then
+        frame:Hide()
+        return
+    end
+
+    local tooltip = EnsureRepairTooltip()
+    local totalRepairCost = 0
+
+    for _, slot in ipairs(EQUIP_SLOTS) do
+        local slotID = GetInventorySlotInfo(slot.name)
+        if slotID and not BAG_EQUIP_SLOT_IDS[slotID] then
+            local hasItem, _, repairCost = tooltip:SetInventoryItem("player", slotID)
+            if hasItem and repairCost and repairCost > 0 then
+                totalRepairCost = totalRepairCost + repairCost
+            end
+        end
+    end
+
+    frame.label:SetText((L and L["Repair Cost"]) or "Repair Cost")
+    if totalRepairCost > 0 then
+        if type(GetCoinTextureString) == "function" then
+            frame.amount:SetText(GetCoinTextureString(totalRepairCost))
+        else
+            frame.amount:SetText(tostring(totalRepairCost))
+        end
+    else
+        frame.amount:SetText((L and L["No Repairs Needed"]) or "No Repairs Needed")
+    end
+
+    if _G.CharacterFrame and _G.CharacterFrame:IsShown() then
+        frame:Show()
+    else
+        frame:Hide()
+    end
+end
+
+local function HideAllCharacterDurability()
+    for _, slot in ipairs(EQUIP_SLOTS) do
+        local button = _G[slot.frame]
+        if button then
+            HideDurabilityText(button)
+        end
+    end
+
+    if ItemQualityModule.frames.repairCostFrame then
+        ItemQualityModule.frames.repairCostFrame:Hide()
+    end
+end
+
+-- ============================================================================
 -- ITEM LINK QUALITY PARSING (shared lookup)
 -- ============================================================================
 
@@ -136,7 +336,7 @@ end
 
 -- Equipment slot names → global frame names
 -- GetInventorySlotInfo takes a NAME string, not a numeric ID
-local EQUIP_SLOTS = {
+EQUIP_SLOTS = {
     { name = "AmmoSlot",       frame = "CharacterAmmoSlot" },
     { name = "HeadSlot",       frame = "CharacterHeadSlot" },
     { name = "NeckSlot",       frame = "CharacterNeckSlot" },
@@ -161,7 +361,7 @@ local EQUIP_SLOTS = {
 
 -- Bag equipment slot IDs (20-23) — these live on the bag-bar and should NOT get
 -- quality overlays.  Only character-panel gear slots should be decorated.
-local BAG_EQUIP_SLOT_IDS = { [20] = true, [21] = true, [22] = true, [23] = true }
+BAG_EQUIP_SLOT_IDS = { [20] = true, [21] = true, [22] = true, [23] = true }
 
 local function UpdateCharacterSlot(button)
     if not button then return end
@@ -180,6 +380,8 @@ local function UpdateCharacterSlot(button)
     else
         SetOverlayQuality(button, nil)
     end
+
+    UpdateCharacterDurability(button, slotID)
 end
 
 local function UpdateAllCharacterSlots()
@@ -191,6 +393,8 @@ local function UpdateAllCharacterSlots()
             UpdateCharacterSlot(button)
         end
     end
+
+    UpdateRepairCostDisplay()
 end
 
 -- ============================================================================
@@ -356,19 +560,20 @@ addon.DebugBankSlots = DebugBankSlots
 -- MERCHANT FRAME
 -- ============================================================================
 
-local MERCHANT_ITEMS_PER_PAGE = MERCHANT_ITEMS_PER_PAGE or 10
-
 local function UpdateMerchantItems()
     if not IsModuleEnabled() then return end
     if not MerchantFrame or not MerchantFrame:IsShown() then return end
 
-    for i = 1, MERCHANT_ITEMS_PER_PAGE do
+    local itemsPerPage = _G.MERCHANT_ITEMS_PER_PAGE or 10
+    local currentPage = MerchantFrame.page or 1
+
+    for i = 1, itemsPerPage do
         local button = _G["MerchantItem" .. i .. "ItemButton"]
         if button then
-            local link = GetMerchantItemLink(i)
+            local merchantIndex = ((currentPage - 1) * itemsPerPage) + i
+            local link = GetMerchantItemLink(merchantIndex)
             if link then
-                local _, _, quality = GetItemInfo(link)
-                SetOverlayQuality(button, quality)
+                SetOverlayQuality(button, GetQualityFromLink(link))
             else
                 SetOverlayQuality(button, nil)
             end
@@ -378,10 +583,10 @@ local function UpdateMerchantItems()
     -- Buyback item
     local buybackButton = _G["MerchantBuyBackItemItemButton"]
     if buybackButton then
-        local link = GetBuybackItemLink(GetNumBuybackItems())
+        local buybackIndex = GetNumBuybackItems and GetNumBuybackItems() or 0
+        local link = buybackIndex > 0 and GetBuybackItemLink(buybackIndex) or nil
         if link then
-            local _, _, quality = GetItemInfo(link)
-            SetOverlayQuality(buybackButton, quality)
+            SetOverlayQuality(buybackButton, GetQualityFromLink(link))
         else
             SetOverlayQuality(buybackButton, nil)
         end
@@ -540,6 +745,21 @@ local function ApplyItemQualitySystem()
     -- Initial update
     addon:After(0.5, UpdateAllQualityBorders)
 
+    if not ItemQualityModule.hooks["CharacterFrameVisibility"] and CharacterFrame then
+        CharacterFrame:HookScript("OnShow", function()
+            if not IsModuleEnabled() then return end
+            addon:After(0.05, function()
+                UpdateAllCharacterSlots()
+            end)
+        end)
+        CharacterFrame:HookScript("OnHide", function()
+            if ItemQualityModule.frames.repairCostFrame then
+                ItemQualityModule.frames.repairCostFrame:Hide()
+            end
+        end)
+        ItemQualityModule.hooks["CharacterFrameVisibility"] = true
+    end
+
     ItemQualityModule.applied = true
     ItemQualityModule.initialized = true
 end
@@ -551,6 +771,8 @@ local function RestoreItemQualitySystem()
     for frame, overlay in pairs(ItemQualityModule.overlays) do
         if overlay then overlay:Hide() end
     end
+
+    HideAllCharacterDurability()
 
     ItemQualityModule.applied = false
 end
@@ -590,6 +812,7 @@ eventFrame:RegisterEvent("GUILDBANKFRAME_OPENED")
 eventFrame:RegisterEvent("GUILDBANKBAGSLOTS_CHANGED")
 eventFrame:RegisterEvent("INSPECT_READY")
 eventFrame:RegisterEvent("UNIT_INVENTORY_CHANGED")
+eventFrame:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
 
 eventFrame:SetScript("OnEvent", function(self, event, arg1)
     if event == "ADDON_LOADED" and arg1 == "Blizzard_InspectUI" then
@@ -617,6 +840,10 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
         end)
 
     elseif event == "PLAYER_EQUIPMENT_CHANGED" then
+        if not IsModuleEnabled() then return end
+        addon:After(0.2, UpdateAllCharacterSlots)
+
+    elseif event == "UPDATE_INVENTORY_DURABILITY" then
         if not IsModuleEnabled() then return end
         addon:After(0.2, UpdateAllCharacterSlots)
 

@@ -300,6 +300,26 @@ L["Show quality-colored borders on items in bags, character panel, bank, merchan
 L["Adds quality-colored glow borders to items in your bags, character panel, bank, merchant, and inspect frames: green = uncommon, blue = rare, purple = epic, orange = legendary."] = true
 L["Minimum Quality"] = true
 L["Only show colored borders for items at or above this quality level."] = true
+L["Equipment Durability"] = true
+L["Show durability text on equipped gear in the character window and display total repair cost."] = true
+L["Show Durability Text"] = true
+L["Display durability text on equipment slots in the character window."] = true
+L["Use Percentage Text"] = true
+L["Show durability as a percentage instead of current/max values."] = true
+L["Show At Full Durability"] = true
+L["Keep durability text visible even when an item is fully repaired."] = true
+L["Show Repair Cost"] = true
+L["Display total repair cost in the character window."] = true
+L["Merchant Enhancements"] = true
+L["Improves the merchant window with automatic repairs and a larger item list layout."] = true
+L["Enable Merchant Enhancements"] = true
+L["Expand the merchant item list and enable related quality-of-life improvements."] = true
+L["Automatic Repairs"] = true
+L["Automatically repair gear when visiting a merchant who can repair."] = true
+L["Prefer Guild Bank Repairs"] = true
+L["Use guild bank repair funds first when the merchant allows it."] = true
+L["Expanded Merchant Layout"] = true
+L["Show up to 20 merchant items per page in a wider multi-column layout."] = true
 L["Poor"] = true
 L["Common"] = true
 L["Uncommon"] = true

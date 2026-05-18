@@ -699,7 +699,17 @@ local defaults = {
             },
             itemquality = {
                 enabled = true, -- Color item borders by quality in bags, character panel, bank, merchant
-                min_quality = 2 -- Minimum quality to show (2 = Uncommon/green)
+                min_quality = 2, -- Minimum quality to show (2 = Uncommon/green)
+                show_durability = true, -- Show durability text on equipped items in the character window
+                durability_percent = true, -- Show durability as percent instead of current/max values
+                show_full_durability = false, -- Keep durability text visible at 100%
+                show_repair_cost = true, -- Show total repair cost in the character window
+            },
+            merchantplus = {
+                enabled = true, -- Merchant quality-of-life improvements
+                auto_repair = true, -- Automatically repair gear when visiting a repair merchant
+                use_guild_bank = true, -- Prefer guild bank funds for repairs when available
+                expanded_layout = true, -- Show more merchant items per page in a wider layout
             },
             chatmods = {
                 enabled = true, -- Chat enhancements: hide buttons, editbox position, URL copy, chat copy

@@ -46,7 +46,10 @@
     
     <!-- Item Quality Borders module -->
     <Script file="itemquality.lua"/>
-    
+
+    <!-- Merchant enhancement module -->
+    <Script file="merchantplus.lua"/>
+
     <!-- Chat Mods module -->
     <Script file="chatmods.lua"/>
     
