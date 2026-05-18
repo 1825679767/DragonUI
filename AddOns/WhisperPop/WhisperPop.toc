@@ -1,0 +1,21 @@
+## Interface: 30300
+## Title: WhisperPop
+## Notes: Whisper popups and whisper history
+## Title-zhCN: 密语弹窗 WhisperPop
+## Notes-zhCN: 记录密语内容并提供弹窗提醒
+## Title-zhTW: 密語彈窗 WhisperPop
+## Notes-zhTW: 記錄玩家的密語信息並提示玩家
+## Version: 2.1
+## Author: Abin
+## SavedVariables: WhisperPopDB
+
+Locales\enUS.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+Includes\MinimapButton-2.0.lua
+Includes\ScrollFrame-1.0.lua
+
+MessageFrame.lua
+OptionBar.lua
+WhisperPop.lua
+WhisperPop.xml

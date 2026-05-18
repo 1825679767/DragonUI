@@ -1,0 +1,54 @@
+## Interface: 30300
+## Title: TradeskillInfo
+## Title-zhCN: 专业技能信息库 TradeskillInfo
+## Title-zhTW: 專業技能資訊庫 TradeskillInfo
+## Notes: Complete Tradeskill Info
+## Notes-zhTW: 完整的商業技能百科 TradeskillInfo
+## Notes-zhCN: 完整的专业技能配方、材料与来源资料库
+## Notes-esES: Informarcion Completa de las Habilidades de Comercio
+## Author: wmrojer
+## eMail: evenue.wow@gmail.com
+## X-eMail: evenue.wow@gmail.com
+## X-Curse-Packaged-Version: r346
+## X-Curse-Project-Name: TradeskillInfo
+## X-Curse-Project-ID: tradeskill-info
+## X-Curse-Repository-ID: wow/tradeskill-info/mainline
+## Version: 1.6.0
+## X-Date: $Date: 2009-10-04 07:45:32 +0000 (Sun, 04 Oct 2009) $
+
+## X-Credits Evenue (updates), Fieroivan (updates), Dys (updates)
+
+## X-Category: Tradeskill
+## LoadManagers: AddonLoader
+## X-LoadOn-Always: delayed
+## X-LoadOn-Slash: /tsi
+
+## OptionalDeps: Auc-Advanced
+
+## SavedVariables: DuowanAddon_TradeskillInfoDB
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceTimer-3.0\AceTimer-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceHook-3.0\AceHook-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\LibBabble-Zone-3.0\LibBabble-3.0.lua
+Libs\LibBabble-Zone-3.0\LibBabble-Zone-3.0.lua
+Libs\LibBabble-Faction-3.0\LibBabble-3.0.lua
+Libs\LibBabble-Faction-3.0\LibBabble-Faction-3.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+libs\LibAbacus-3.0\lib.xml
+
+locale-enUS.lua
+locale-zhCN.lua
+locale-zhTW.lua
+
+
+TradeskillInfo.lua
+
+TradeskillIdData.lua
+TradeskillData.lua

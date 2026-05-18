@@ -1,0 +1,46 @@
+## Interface: 30300
+## Title: RatingBuster
+## Title-zhTW: 裝備屬性解析 RatingBuster
+## Notes-zhCN: 装备属性解析与对比
+## Title-zhCN: 装备属性解析 RatingBuster
+## Notes: Item stat breakdown, analysis and comparison
+## Notes-zhTW: 裝備數值解析與比較
+## Author: Whitetooth
+## X-eMail: hotdogee [at] gmail [dot] com
+## SavedVariables: DuowanAddon_RatingBusterDB, DuowanAddon_EnhancedCharStatsDB
+## OptionalDeps: TankPoints
+## X-Embeds: Ace3, LibTipHooker-1.1, LibStatLogic-1.1, UTF8, LibBabble-Inventory-3.0
+## X-Category: Interface Enhancements
+## X-RelSite-WoWI: 5819
+## X-RelSite-Curse: 4991
+## X-License: GPL v2
+## X-Encoding: UTF-8
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+Libs\LibTipHooker-1.1\LibTipHooker-1.1.lua
+Libs\UTF8\utf8data.lua
+Libs\UTF8\utf8.lua
+Libs\LibStatLogic-1.1\LibStatLogic-1.1.lua
+Libs\LibBabble-Inventory-3.0\LibBabble-3.0.lua
+Libs\LibBabble-Inventory-3.0\LibBabble-Inventory-3.0.lua
+
+######################
+# Localization Files #
+######################
+RatingBuster-Locale-enUS.lua
+RatingBuster-Locale-zhCN.lua
+RatingBuster-Locale-zhTW.lua
+
+########
+# Core #
+########
+RatingBuster.lua

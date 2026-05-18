@@ -529,6 +529,20 @@ local function BuildPluginManagementPlaceholder(parent)
         return LibStub(name, true)
     end
 
+    local function GetAceAddon(name)
+        local aceAddon = GetLibrary("AceAddon-3.0")
+        if not aceAddon or type(aceAddon.GetAddon) ~= "function" then
+            return nil
+        end
+
+        local ok, addon = pcall(aceAddon.GetAddon, aceAddon, name, true)
+        if ok then
+            return addon
+        end
+
+        return nil
+    end
+
     local function EnsureSpellBookVisible()
         local spellBookFrame = _G.SpellBookFrame
         if not spellBookFrame then
@@ -597,6 +611,56 @@ local function BuildPluginManagementPlaceholder(parent)
             openConfig = function()
                 if _G.KuiNameplates and _G.KuiNameplates.OpenConfig then
                     _G.KuiNameplates:OpenConfig()
+                    return true
+                end
+                return false
+            end,
+        },
+        {
+            key = "mapster",
+            title = "Mapster",
+            subtitle = LO["Enhanced world map tools with coordinates, group markers, instance maps, and flexible scaling."],
+            category = "interface",
+            addons = { "Mapster" },
+            getLoaded = function()
+                return GetAceAddon("Mapster") ~= nil
+            end,
+            openConfig = function()
+                local mapster = GetAceAddon("Mapster")
+                if mapster and mapster.optionsFrames and mapster.optionsFrames.Mapster then
+                    if mapster.optionsFrames.Profiles and type(_G.InterfaceOptionsFrame_OpenToCategory) == "function" then
+                        _G.InterfaceOptionsFrame_OpenToCategory(mapster.optionsFrames.Profiles)
+                    end
+                    if type(_G.InterfaceOptionsFrame_OpenToCategory) == "function" then
+                        _G.InterfaceOptionsFrame_OpenToCategory(mapster.optionsFrames.Mapster)
+                    end
+                    if _G.InterfaceOptionsFrame and _G.InterfaceOptionsFrame.Raise then
+                        _G.InterfaceOptionsFrame:Raise()
+                    end
+                    return true
+                end
+
+                local aceConfigDialog = GetLibrary("AceConfigDialog-3.0")
+                if aceConfigDialog then
+                    aceConfigDialog:Open("Mapster")
+                    return true
+                end
+
+                return false
+            end,
+        },
+        {
+            key = "ratingbuster",
+            title = "RatingBuster",
+            subtitle = LO["Item stat breakdown and comparison that expands tooltip details for upgrades and sidegrades."],
+            category = "interface",
+            addons = { "RatingBuster" },
+            getLoaded = function()
+                return _G.RatingBuster ~= nil
+            end,
+            openConfig = function()
+                if _G.RatingBuster and _G.RatingBuster.ShowConfig then
+                    _G.RatingBuster:ShowConfig()
                     return true
                 end
                 return false
@@ -736,6 +800,24 @@ local function BuildPluginManagementPlaceholder(parent)
             end,
         },
         {
+            key = "tradeskillinfo",
+            title = "TradeskillInfo",
+            subtitle = LO["Comprehensive profession database with recipe sources, materials, search, and who-can-learn tracking."],
+            category = "reference",
+            note = LO["TradeskillInfoUI is bundled for the searchable browser and settings window."],
+            addons = { "TradeskillInfo", "TradeskillInfoUI" },
+            getLoaded = function()
+                return _G.TradeskillInfo ~= nil
+            end,
+            openConfig = function()
+                if _G.TradeskillInfo and _G.TradeskillInfo.ConfigToggle then
+                    _G.TradeskillInfo:ConfigToggle()
+                    return true
+                end
+                return false
+            end,
+        },
+        {
             key = "gathermate",
             title = "GatherMate",
             subtitle = LO["Tracks gathering nodes and imports database data onto the world map and minimap."],
@@ -776,6 +858,33 @@ local function BuildPluginManagementPlaceholder(parent)
                     button:Show()
                     button:Click()
                     return true
+                end
+                return false
+            end,
+        },
+        {
+            key = "whisperpop",
+            title = "WhisperPop",
+            subtitle = LO["Whisper popups and message history with quick reply tools and minimap access."],
+            category = "utilities",
+            addons = { "WhisperPop" },
+            getLoaded = function()
+                return type(_G.WhisperPop_ToggleFrame) == "function"
+            end,
+            openConfig = function()
+                if _G.WhisperPopFrame then
+                    _G.WhisperPopFrame:Show()
+                    if _G.WhisperPopFrame.Raise then
+                        _G.WhisperPopFrame:Raise()
+                    end
+                    return true
+                end
+                if type(_G.WhisperPop_ToggleFrame) == "function" then
+                    _G.WhisperPop_ToggleFrame()
+                    if _G.WhisperPopFrame and _G.WhisperPopFrame.Raise then
+                        _G.WhisperPopFrame:Raise()
+                    end
+                    return _G.WhisperPopFrame and _G.WhisperPopFrame:IsShown()
                 end
                 return false
             end,
@@ -1121,6 +1230,19 @@ local function BuildPluginManagementPlaceholder(parent)
     local rows = {}
     local rowHeight = 78
 
+    local function ClampVerticalScroll(scrollFrame)
+        local range = scrollFrame:GetVerticalScrollRange() or 0
+        local current = scrollFrame:GetVerticalScroll() or 0
+
+        if current < 0 then
+            current = 0
+        elseif current > range then
+            current = range
+        end
+
+        scrollFrame:SetVerticalScroll(current)
+    end
+
     local function OpenPluginSettings(def)
         if not IsPluginInstalled(def) then
             return
@@ -1267,8 +1389,14 @@ local function BuildPluginManagementPlaceholder(parent)
 
         listBody:SetHeight(bodyHeight)
         navChild:SetHeight(navHeight)
+        ClampVerticalScroll(listScroll)
+        ClampVerticalScroll(navScroll)
 
-        emptyText:SetShown(shown == 0)
+        if shown == 0 then
+            emptyText:Show()
+        else
+            emptyText:Hide()
+        end
     end
 
     function root:RefreshLayout()
@@ -1286,6 +1414,9 @@ local function BuildPluginManagementPlaceholder(parent)
         btn:SetPoint("TOPLEFT", navChild, "TOPLEFT", 0, yOffset)
         btn:SetPoint("TOPRIGHT", navChild, "TOPRIGHT", 0, yOffset)
         btn:SetScript("OnClick", function()
+            if currentCategory ~= cat.key then
+                listScroll:SetVerticalScroll(0)
+            end
             currentCategory = cat.key
             root:RefreshView()
         end)

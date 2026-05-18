@@ -1,0 +1,40 @@
+## Interface: 30300
+## Title: TradeskillInfo UI
+## Title-zhCN: 专业技能信息库设置 TradeskillInfoUI
+## Title-zhTW: 專業技能資訊庫設置 TradeskillInfoUI
+## Author: wmrojer
+## Notes: Complete Tradeskill Info UI
+## Notes-zhCN: 专业技能信息库的搜索窗口与设置界面
+## Notes-zhTW: 商業技能資料庫設置窗口 TradeskillInfoUI
+## Notes-esES: UI con Info Completa de las Habilidades de Comercio
+## Notes-koKR: ???? ?? UI
+## Version: 1.6.0
+## SavedVariables: DuowanAddon_TradeskillInfoUIDB
+## Dependencies: TradeskillInfo
+## X-Category: Tradeskill
+## X-eMail: evenue.wow@gmail.com
+## X-Credits Evenue (updates), Fieroivan (updates)
+## LoadOnDemand: 1
+## X-Curse-Packaged-Version: r346
+## X-Curse-Project-Name: TradeskillInfo
+## X-Curse-Project-ID: tradeskill-info
+## X-Curse-Repository-ID: wow/tradeskill-info/mainline
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceTimer-3.0\AceTimer-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+
+locale-enUS.lua
+locale-zhCN.lua
+locale-zhTW.lua
+TradeskillInfoUI.lua
+TradeskillInfoUI.xml
+TradeskillInfoOptions.lua
