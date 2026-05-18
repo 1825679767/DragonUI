@@ -47,6 +47,7 @@ L["GROUP %d"] = "第 %d 队"
 L["XP: "] = "经验值："
 L["Remaining: "] = "剩余："
 L["Rested: "] = "休息："
+L["Rested Bonus"] = "休息加成"
 
 L["Error executing pending operation:"] = "执行待处理操作时出错："
 L["Error -- Addon 'DragonUI_Options' not found or is disabled."] = "错误：插件 'DragonUI_Options' 未找到或已被禁用。"

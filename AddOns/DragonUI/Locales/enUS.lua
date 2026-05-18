@@ -49,6 +49,7 @@ L["GROUP %d"] = true
 L["XP: "] = true
 L["Remaining: "] = true
 L["Rested: "] = true
+L["Rested Bonus"] = true
 
 -- Errors
 L["Error executing pending operation:"] = true

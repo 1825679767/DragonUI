@@ -1168,7 +1168,7 @@ end
             local restedPct = (restedMax > 0) and (100 * restedXP / restedMax) or 0
             local percentText = " = " .. format("%.1f%%", pct)
             if restedPct > 0 then
-                percentText = percentText .. " (" .. format("%.1f%%", restedPct) .. " Rested)"
+                percentText = percentText .. " (" .. (L["Rested Bonus"] or "Rested") .. " " .. format("%.1f%%", restedPct) .. ")"
             end
             dfXpBar.TextPercent:SetText(percentText)
             dfXpBar.TextPercent:Show()
@@ -2132,7 +2132,7 @@ end
                 local restedPct = (restedMax > 0) and (100 * restedXP / restedMax) or 0
                 local percentText = format(" (%.1f%%", pct)
                 if restedPct > 0 then
-                    percentText = percentText .. format(", %.1f%% Rested", restedPct)
+                    percentText = percentText .. ", " .. (L["Rested Bonus"] or "Rested") .. " " .. format("%.1f%%", restedPct)
                 end
                 percentText = percentText .. ")"
 
