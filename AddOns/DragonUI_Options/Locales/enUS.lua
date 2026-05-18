@@ -49,6 +49,7 @@ L["Utilities"] = true
 L["Combat Statistics"] = true
 L["No integrated addons in this category yet."] = true
 L["Boss encounter warnings and timers."] = true
+L["Raid and party alert announcer for tank danger, threat, crowd control breaks, misdirects, dispels, and raid checks."] = true
 L["Enhanced enemy and friendly nameplates."] = true
 L["Modular party and raid unit frames for healing and group visibility."] = true
 L["Click-casting bindings that pair especially well with Grid2 and healing setups."] = true

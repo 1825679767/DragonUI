@@ -626,6 +626,38 @@ local function BuildPluginManagementPlaceholder(parent)
             end,
         },
         {
+            key = "raidalerter",
+            title = "RaidAlerter",
+            subtitle = LO["Raid and party alert announcer for tank danger, threat, crowd control breaks, misdirects, dispels, and raid checks."],
+            category = "group",
+            addons = { "RaidAlerter" },
+            getLoaded = function()
+                return _G.RaidAlerter ~= nil or _G.RaidAlerter_MainFrame ~= nil or IsAddOnLoaded("RaidAlerter")
+            end,
+            openConfig = function()
+                if _G.RaidAlerter_MainFrame then
+                    _G.RaidAlerter_MainFrame:Show()
+                    if type(_G.RaidAlerter_Option_MainFrame_Update) == "function" then
+                        _G.RaidAlerter_Option_MainFrame_Update()
+                    end
+                    if type(_G.RaidAlerter_Check_CTRAORA_LA_TANKS) == "function" then
+                        _G.RaidAlerter_Check_CTRAORA_LA_TANKS()
+                    end
+                    if _G.RaidAlerter_MainFrame.Raise then
+                        _G.RaidAlerter_MainFrame:Raise()
+                    end
+                    return _G.RaidAlerter_MainFrame:IsShown()
+                end
+
+                if type(_G.RaidAlerter_SlashCommand) == "function" then
+                    _G.RaidAlerter_SlashCommand("")
+                    return _G.RaidAlerter_MainFrame and _G.RaidAlerter_MainFrame:IsShown()
+                end
+
+                return false
+            end,
+        },
+        {
             key = "kui",
             title = "Kui_Nameplates",
             subtitle = LO["Enhanced enemy and friendly nameplates."],
