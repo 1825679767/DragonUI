@@ -62,6 +62,7 @@ L["Tracks gathering nodes and imports database data onto the world map and minim
 L["Enhanced world map tools with coordinates, group markers, instance maps, and flexible scaling."] = true
 L["Item stat breakdown and comparison that expands tooltip details for upgrades and sidegrades."] = true
 L["Detailed item tooltip data including sources, reputation, categories, profession usage, and collection context."] = true
+L["Custom spell proc, buff, and target debuff alerts with per-spell lists."] = true
 L["Enhanced mailbox tools, bulk mail collection, and contact shortcuts."] = true
 L["Whisper popups and message history with quick reply tools and minimap access."] = true
 L["Automatically sells junk items and manages keep/sell exception lists."] = true
@@ -182,12 +183,18 @@ L["Micro Menu & Bags"] = true
 L["Cooldown Timers"] = true
 L["Minimap System"] = true
 L["Buff Frame System"] = true
+L["Quick Loot"] = true
 L["Dark Mode"] = true
 L["Range Indicator"] = true
 L["Item Quality Borders"] = true
 L["Enable Enhanced Tooltips"] = true
 L["KeyBind Mode"] = true
 L["Quest Tracker"] = true
+L["Enable Quick Loot"] = true
+L["Move the loot window to your cursor and optionally hide it when there is nothing to loot."] = true
+L["Reposition the loot window at your cursor whenever loot opens or updates."] = true
+L["Auto-Hide Empty Loot"] = true
+L["Hide the loot window automatically if nothing remains to be looted."] = true
 
 -- Module toggle descriptions
 L["Enable DragonUI player castbar. When disabled, shows default Blizzard castbar."] = true

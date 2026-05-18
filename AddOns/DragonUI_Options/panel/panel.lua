@@ -599,6 +599,33 @@ local function BuildPluginManagementPlaceholder(parent)
             end,
         },
         {
+            key = "eventalert",
+            title = "EventAlert",
+            subtitle = LO["Custom spell proc, buff, and target debuff alerts with per-spell lists."],
+            category = "encounter",
+            addons = { "EventAlert" },
+            getLoaded = function()
+                return _G.EA_Main_Frame ~= nil or IsAddOnLoaded("EventAlert")
+            end,
+            openConfig = function()
+                if _G.EA_Options_Frame then
+                    if not _G.EA_Options_Frame:IsShown() and type(_G.ShowUIPanel) == "function" then
+                        _G.ShowUIPanel(_G.EA_Options_Frame)
+                    elseif _G.EA_Options_Frame.Raise then
+                        _G.EA_Options_Frame:Raise()
+                    end
+                    return _G.EA_Options_Frame:IsShown()
+                end
+
+                if type(_G.EventAlert_SlashHandler) == "function" then
+                    _G.EventAlert_SlashHandler("opt")
+                    return _G.EA_Options_Frame and _G.EA_Options_Frame:IsShown()
+                end
+
+                return false
+            end,
+        },
+        {
             key = "kui",
             title = "Kui_Nameplates",
             subtitle = LO["Enhanced enemy and friendly nameplates."],

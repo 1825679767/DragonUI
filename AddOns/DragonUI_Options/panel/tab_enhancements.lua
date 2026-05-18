@@ -327,6 +327,39 @@ local function BuildEnhancementsTab(scroll)
     })
 
     -- ====================================================================
+    -- QUICK LOOT
+    -- ====================================================================
+    C:AddSpacer(scroll)
+    local quickLootSection = C:AddSection(scroll, LO["Quick Loot"])
+
+    C:AddDescription(quickLootSection, LO["Move the loot window to your cursor and optionally hide it when there is nothing to loot."])
+
+    C:AddToggle(quickLootSection, {
+        label = LO["Enable Quick Loot"],
+        desc = LO["Reposition the loot window at your cursor whenever loot opens or updates."],
+        getFunc = function() return IsEnabled("quickloot") end,
+        setFunc = function(val)
+            EnsureModuleTable("quickloot").enabled = val
+            if addon.RefreshQuickLootSystem then addon.RefreshQuickLootSystem() end
+            Panel:SelectTab("enhancements")
+        end,
+        requiresReload = false,
+    })
+
+    C:AddToggle(quickLootSection, {
+        label = LO["Auto-Hide Empty Loot"],
+        desc = LO["Hide the loot window automatically if nothing remains to be looted."],
+        getFunc = function()
+            return GetModuleField("quickloot", "auto_hide") == true
+        end,
+        setFunc = function(val)
+            EnsureModuleTable("quickloot").auto_hide = val
+        end,
+        disabled = function() return not IsEnabled("quickloot") end,
+        requiresReload = false,
+    })
+
+    -- ====================================================================
     -- UNIT FRAME LAYERS
     -- ====================================================================
     C:AddSpacer(scroll)

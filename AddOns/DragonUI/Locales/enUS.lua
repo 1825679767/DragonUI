@@ -168,7 +168,9 @@ L["TooltipWidget"] = "Tooltip"
 L["Auras"] = true
 L["WeaponEnchants"] = "Weapon Enchants"
 L["Loot Roll"] = true
+L["Quick Loot"] = true
 L["Quest Tracker"] = true
+L["Move the loot window to your cursor and optionally hide it when there is nothing to loot."] = true
 
 -- Mover tooltip strings
 L["Drag to move"] = true

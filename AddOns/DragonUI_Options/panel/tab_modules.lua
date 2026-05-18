@@ -177,6 +177,16 @@ local function BuildModulesTab(scroll)
     })
 
     ModuleToggle(uiSection, {
+        label = LO["Quick Loot"],
+        desc = LO["Move the loot window to your cursor and optionally hide it when there is nothing to loot."],
+        moduleName = "quickloot",
+        requiresReload = false,
+        callback = function()
+            if addon.RefreshQuickLootSystem then addon.RefreshQuickLootSystem() end
+        end,
+    })
+
+    ModuleToggle(uiSection, {
         label = LO["KeyBind Mode"],
         desc = LO["LibKeyBound integration for intuitive hover + key press binding."],
         moduleName = "keybinding",

@@ -683,6 +683,10 @@ local defaults = {
             questtracker = {
                 enabled = true -- Enable DragonUI quest tracker positioning and styling
             },
+            quickloot = {
+                enabled = true, -- Move the loot frame to the cursor
+                auto_hide = false, -- Hide the loot frame if nothing remains to loot
+            },
             darkmode = {
                 enabled = false, -- Apply darker tinted textures to UI chrome
                 intensity_preset = 3, -- 1 = Light, 2 = Medium, 3 = Dark

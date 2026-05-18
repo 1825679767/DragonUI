@@ -24,6 +24,7 @@
     <Script file="minimap.lua"/>    
     <Script file="questtracker.lua"/>   
     <Script file="lootroll.lua"/>
+    <Script file="quickloot.lua"/>
 
  
     <!-- UnitFrames -->
