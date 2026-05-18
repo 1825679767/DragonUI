@@ -34,7 +34,7 @@ function addon:OnInitialize()
   self.db:RegisterDefaults({
     char = {
       exceptions = {},
-      auto = false,
+      auto = true,
 			max12 = true,
 			printGold = true,
       showSpam = true
@@ -43,6 +43,10 @@ function addon:OnInitialize()
       exceptions = {},
     }
   })
+
+  if self.db.char.auto == nil then
+    self.db.char.auto = true
+  end
 
   self:PopulateOptions()
   AceConfigRegistry:RegisterOptionsTable("SellJunk", options)

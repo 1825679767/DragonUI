@@ -521,12 +521,51 @@ local function UpdateSectionLayout()
 end
 
 local function BuildPluginManagementPlaceholder(parent)
+    local function GetLibrary(name)
+        if not LibStub then
+            return nil
+        end
+
+        return LibStub(name, true)
+    end
+
+    local function EnsureSpellBookVisible()
+        local spellBookFrame = _G.SpellBookFrame
+        if not spellBookFrame then
+            return false
+        end
+
+        if not spellBookFrame:IsShown() then
+            if type(_G.ToggleSpellBook) == "function" and _G.BOOKTYPE_SPELL then
+                _G.ToggleSpellBook(_G.BOOKTYPE_SPELL)
+            elseif type(_G.ShowUIPanel) == "function" then
+                _G.ShowUIPanel(spellBookFrame)
+            end
+        end
+
+        if spellBookFrame.bookType ~= _G.BOOKTYPE_SPELL and _G.BOOKTYPE_SPELL then
+            spellBookFrame.bookType = _G.BOOKTYPE_SPELL
+            if type(_G.SpellBookFrame_Update) == "function" then
+                _G.SpellBookFrame_Update()
+            elseif type(_G.UpdateSpells) == "function" then
+                _G.UpdateSpells()
+            end
+        end
+
+        if not spellBookFrame:IsShown() and type(_G.ShowUIPanel) == "function" then
+            _G.ShowUIPanel(spellBookFrame)
+        end
+
+        return spellBookFrame:IsShown()
+    end
+
     local pluginDefinitions = {
         {
             key = "dbm",
             title = "DBM",
             subtitle = LO["Boss encounter warnings and timers."],
             category = "encounter",
+            note = LO["DBM consists of the core, GUI, and multiple raid/party modules that are managed together."],
             addons = {
                 "DBM-Core", "DBM-GUI", "DBM-AQ20", "DBM-AQ40", "DBM-BlackTemple", "DBM-BurningCrusade",
                 "DBM-BWL", "DBM-ChamberOfAspects", "DBM-Coliseum", "DBM-EyeOfEternity", "DBM-Hyjal",
@@ -550,6 +589,7 @@ local function BuildPluginManagementPlaceholder(parent)
             title = "Kui_Nameplates",
             subtitle = LO["Enhanced enemy and friendly nameplates."],
             category = "interface",
+            note = LO["Kui_Nameplates_Auras is bundled together and follows the same enable state."],
             addons = { "Kui_Nameplates", "Kui_Nameplates_Auras" },
             getLoaded = function()
                 return _G.KuiNameplates ~= nil
@@ -566,7 +606,7 @@ local function BuildPluginManagementPlaceholder(parent)
             key = "grid2",
             title = "Grid2",
             subtitle = LO["Modular party and raid unit frames for healing and group visibility."],
-            category = "raidframes",
+            category = "group",
             addons = { "Grid2", "Grid2Options", "Grid2StatusRaidDebuffs", "Grid2StatusRaidDebuffsOptions" },
             getLoaded = function()
                 return _G.Grid2 ~= nil
@@ -574,6 +614,167 @@ local function BuildPluginManagementPlaceholder(parent)
             openConfig = function()
                 if _G.Grid2 and _G.Grid2.OnChatCommand then
                     _G.Grid2:OnChatCommand("")
+                    return true
+                end
+                return false
+            end,
+        },
+        {
+            key = "clique",
+            title = "Clique",
+            subtitle = LO["Click-casting bindings that pair especially well with Grid2 and healing setups."],
+            category = "group",
+            addons = { "Clique" },
+            failureMessage = LO["Clique relies on the spellbook window. The spellbook is now opened for you; click Settings again if the panel still does not appear."],
+            getLoaded = function()
+                return _G.Clique ~= nil
+            end,
+            openConfig = function()
+                if _G.Clique and _G.Clique.Toggle and EnsureSpellBookVisible() then
+                    if _G.CliqueFrame and _G.CliqueFrame:IsShown() then
+                        if _G.CliqueFrame.Raise then
+                            _G.CliqueFrame:Raise()
+                        end
+                        if _G.CliquePulloutTab then
+                            _G.CliquePulloutTab:SetChecked(true)
+                        end
+                        return true
+                    end
+
+                    _G.Clique:Toggle()
+
+                    if _G.CliqueFrame and _G.CliqueFrame:IsShown() then
+                        if _G.CliqueFrame.Raise then
+                            _G.CliqueFrame:Raise()
+                        end
+                        if _G.CliquePulloutTab then
+                            _G.CliquePulloutTab:SetChecked(true)
+                        end
+                        return true
+                    end
+                end
+                return false
+            end,
+        },
+        {
+            key = "decursive",
+            title = "Decursive",
+            subtitle = LO["One-click dispel assistance with priority and debuff list tools."],
+            category = "group",
+            addons = { "Decursive" },
+            getLoaded = function()
+                return _G.Dcr ~= nil
+            end,
+            openConfig = function()
+                if _G.SlashCmdList and _G.SlashCmdList["DECURSIVEOPTION"] then
+                    _G.SlashCmdList["DECURSIVEOPTION"]("")
+                    return true
+                end
+                return false
+            end,
+        },
+        {
+            key = "ora3",
+            title = "oRA3",
+            subtitle = LO["Raid tools for ready checks, durability, cooldowns, loot, and tank assignments."],
+            category = "group",
+            addons = { "oRA3" },
+            getLoaded = function()
+                return _G.oRA3 ~= nil
+            end,
+            openConfig = function()
+                if type(_G.oRA3_OpenConfig) == "function" then
+                    _G.oRA3_OpenConfig()
+                    return true
+                end
+                if _G.oRA3 and _G.oRA3.ToggleFrame then
+                    _G.oRA3:ToggleFrame(true)
+                    return true
+                end
+                return false
+            end,
+        },
+        {
+            key = "gladiatorlossa",
+            title = "GladiatorlosSA",
+            subtitle = LO["Spoken PvP alerts for arena and battleground abilities."],
+            category = "pvp",
+            addons = { "GladiatorlosSA" },
+            getLoaded = function()
+                return _G.GladiatorlosSA ~= nil
+            end,
+            openConfig = function()
+                if _G.GladiatorlosSA and _G.GladiatorlosSA.ShowConfig then
+                    return _G.GladiatorlosSA:ShowConfig()
+                end
+                return false
+            end,
+        },
+        {
+            key = "atlasloot",
+            title = "AtlasLoot",
+            subtitle = LO["Loot, crafting, faction, and event reward browser with bundled expansion data modules."],
+            category = "reference",
+            note = LO["AtlasLoot expansion data modules are managed together with the main addon."],
+            addons = {
+                "AtlasLoot", "AtlasLoot_OriginalWoW", "AtlasLoot_BurningCrusade",
+                "AtlasLoot_Crafting", "AtlasLoot_WorldEvents", "AtlasLoot_WrathoftheLichKing",
+            },
+            getLoaded = function()
+                return _G.AtlasLoot ~= nil or type(_G.AtlasLootOptions_Toggle) == "function"
+            end,
+            openConfig = function()
+                if type(_G.AtlasLootOptions_Toggle) == "function" then
+                    _G.AtlasLootOptions_Toggle()
+                    return true
+                end
+                if _G.SlashCmdList and _G.SlashCmdList["ATLASLOOT"] then
+                    _G.SlashCmdList["ATLASLOOT"]("")
+                    return true
+                end
+                return false
+            end,
+        },
+        {
+            key = "gathermate",
+            title = "GatherMate",
+            subtitle = LO["Tracks gathering nodes and imports database data onto the world map and minimap."],
+            category = "reference",
+            note = LO["GatherMate_Data stays bundled for database imports."],
+            addons = { "GatherMate", "GatherMate_Data" },
+            getLoaded = function()
+                return _G.GatherMate ~= nil
+            end,
+            openConfig = function()
+                local gatherMate = _G.GatherMate
+                local config = gatherMate and gatherMate.GetModule and gatherMate:GetModule("Config", true)
+                if config and config.EnsureOptionsRegistered and config:EnsureOptionsRegistered() then
+                    local aceConfigDialog = GetLibrary("AceConfigDialog-3.0")
+                    if aceConfigDialog then
+                        aceConfigDialog:Open("GatherMate")
+                        return true
+                    end
+                end
+                return false
+            end,
+        },
+        {
+            key = "postal",
+            title = "Postal",
+            subtitle = LO["Enhanced mailbox tools, bulk mail collection, and contact shortcuts."],
+            category = "utilities",
+            note = LO["Postal settings are available from the mailbox interface."],
+            addons = { "Postal" },
+            lowerPanel = false,
+            failureMessage = LO["Postal settings are available from the mailbox interface. Open a mailbox first and try again."],
+            getLoaded = function()
+                return _G.Postal ~= nil
+            end,
+            openConfig = function()
+                local button = _G.Postal_ModuleMenuButton
+                if _G.MailFrame and _G.MailFrame:IsShown() and button then
+                    button:Show()
+                    button:Click()
                     return true
                 end
                 return false
@@ -618,9 +819,11 @@ local function BuildPluginManagementPlaceholder(parent)
     local categoryDefinitions = {
         { key = "all", text = LO["All"] },
         { key = "encounter", text = LO["Encounter Tools"] },
-        { key = "interface", text = LO["Interface Enhancements"] },
-        { key = "raidframes", text = LO["Raid Frames"] },
+        { key = "group", text = LO["Group & Healing"] },
+        { key = "pvp", text = LO["PvP Tools"] },
+        { key = "reference", text = LO["Reference & Gathering"] },
         { key = "utilities", text = LO["Utilities"] },
+        { key = "interface", text = LO["Interface Enhancements"] },
         { key = "stats", text = LO["Combat Statistics"] },
     }
 
@@ -916,7 +1119,7 @@ local function BuildPluginManagementPlaceholder(parent)
     local currentCategory = "all"
     local categoryButtons = {}
     local rows = {}
-    local rowHeight = 70
+    local rowHeight = 78
 
     local function OpenPluginSettings(def)
         if not IsPluginInstalled(def) then
@@ -928,11 +1131,19 @@ local function BuildPluginManagementPlaceholder(parent)
             return
         end
 
-        Panel:SendBehindExternalConfig()
+        local lowerPanel = def.lowerPanel ~= false
+        if lowerPanel then
+            Panel:SendBehindExternalConfig()
+        else
+            Panel:RestoreFramePriority()
+        end
+
         local opened = def.openConfig and def.openConfig()
         if not opened then
-            Panel:RestoreFramePriority()
-            print("|cFFFF0000[DragonUI]|r " .. LO["This plugin is not loaded yet. Reload the UI first, then try again."])
+            if lowerPanel then
+                Panel:RestoreFramePriority()
+            end
+            print("|cFFFF0000[DragonUI]|r " .. (def.failureMessage or LO["This plugin is not loaded yet. Reload the UI first, then try again."]))
         end
     end
 
@@ -1040,7 +1251,11 @@ local function BuildPluginManagementPlaceholder(parent)
                 row:SetPoint("TOPRIGHT", listBody, "TOPRIGHT", 0, -((shown - 1) * rowHeight))
                 row.checkbox:SetChecked(enabled)
                 row.name:SetText(def.title)
-                row.desc:SetText(def.subtitle .. "\n|cff8a8a8a" .. LO["Status"] .. ":|r " .. GetPluginStatusText(def))
+                local description = def.subtitle .. "\n|cff8a8a8a" .. LO["Status"] .. ":|r " .. GetPluginStatusText(def)
+                if def.note then
+                    description = description .. "\n|cff6f6f74" .. def.note .. "|r"
+                end
+                row.desc:SetText(description)
                 row.action:SetButtonDisabled(not (installed and enabled and loaded))
             else
                 row:Hide()
